@@ -34,6 +34,8 @@
 package subtest
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 )
 
@@ -55,6 +57,24 @@ func Check(v interface{}) C {
 	return func() interface{} {
 		return v
 	}
+}
+
+// CheckJSON returns a C for the JSON unmarshaled value of b. The JSON will be
+// decoded before each test, which means the result is safe to modify.
+func CheckJSON(b []byte) C {
+	return func() interface{} {
+		var v interface{}
+		err := json.Unmarshal(b, v)
+		if err != nil {
+			return fmt.Errorf("not valid JSON: %w", err)
+		}
+		return v
+	}
+}
+
+// CheckJSONString is short-hand for CheckJSON([]byte(s)).
+func CheckJSONString(s string) C {
+	return CheckJSON([]byte(s))
 }
 
 // Value returns the value of C.
