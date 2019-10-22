@@ -1,0 +1,104 @@
+version: 2
+
+jobs:
+  test:
+    docker:
+      - image: &go-image "circleci/golang:1.13"
+    steps:
+      - checkout
+      - run: &run-go-tests
+          name: Run go tests
+          command: |
+            set -e
+            mkdir -p /tmp/go-junit
+            gotestsum --junitfile /tmp/go-junit/unit-tests.xml -- -race ./...
+      - store_test_results:
+          path: /tmp/go-junit
+
+  test-examples:
+    docker:
+      - image: *go-image
+    steps:
+      - checkout
+      - run: cd ./examples
+      - restore_cache:
+          name: Restore cache
+          keys:
+            - &cache-go-mod 'v1-subtest-cache-{{checksum "go.mod"}}'
+            - &cache-go-base "v1-subtest-cache"
+      - run:
+          name: Install go modules
+          command: go mod download
+      - run: *run-go-tests
+      - store_test_results:
+          path: /tmp/go-junit
+      - save_cache:
+          key: *cache-go-base
+          paths: &cache-go-paths
+            - ~/.cache/go-build
+            - $GOPATH/pkg/mod
+      - save_cache:
+          key: *cache-go-mod
+          paths: *cache-go-paths
+
+  lint:
+    docker:
+      - image: *go-image
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore cache
+          keys:
+            - &cache-go-lint "v1-subtest-cache"
+            - *cache-go-mod
+            - *cache-go-base
+      - run:
+          name: Install tools
+          command: |
+            set -e
+            cd $GOPATH
+            go get -u golang.org/x/lint/golint
+      - run:
+          name: "Ensure Go modules up-to-date (./)"
+          command: |
+            set -ex
+            go mod tidy
+            [ -z "$(git diff -- go.{mod,sum})" ] # Check there are no changes!
+            go mod verify
+      - run:
+          name: "Ensure Go modules up-to-date (./examples/...)"
+          command: |
+            set -ex
+            pushd examples
+            go mod tidy
+            [ -z "$(git diff -- go.{mod,sum})" ] # Check there are no changes!
+            go mod verify
+            popd
+      - run:
+          name: "Go vet & lint (./)"
+          command: |
+            set -ex
+            go vet .
+            golint -set_exit_status .
+      - run:
+          name: "Go vet & lint (./examples/...)"
+          command: |
+            set -ex
+            pushd examples
+            go vet ./...
+            golint -set_exit_status ./...
+            popd
+      - save_cache:
+          key: *cache-go-lint
+          paths: *cache-go-paths
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test
+      - test-examples
+      - lint:
+          # Adds requirement to better utilize cache.
+          requires:
+            - test-examples
