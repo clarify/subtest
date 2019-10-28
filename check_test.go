@@ -1,6 +1,8 @@
 package subtest_test
 
 import (
+	"encoding/json"
+	"regexp"
 	"testing"
 
 	"github.com/searis/subtest"
@@ -149,4 +151,26 @@ func TestCheckNotReflectNil(t *testing.T) {
 		t.Run("then it should fail", vf.NoError())
 	})
 
+}
+
+func TestRegexp(t *testing.T) {
+	t.Run("given a regular expression check function", func(t *testing.T) {
+		cf := subtest.MatchRegexp(regexp.MustCompile(`^"f.*a.?r"$`))
+		t.Run("when cheking against a non matching string", func(t *testing.T) {
+			vf := subtest.Value(cf(`"foo"`))
+			t.Run("then it should fail", vf.Error())
+		})
+		t.Run("when cheking against a matching string", func(t *testing.T) {
+			vf := subtest.Value(cf(`"foobar"`))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against a matching []byte", func(t *testing.T) {
+			vf := subtest.Value(cf([]byte(`"foobar"`)))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against a matching json.RawMessage", func(t *testing.T) {
+			vf := subtest.Value(cf(json.RawMessage(`"foobar"`)))
+			t.Run("then it should not fail", vf.NoError())
+		})
+	})
 }
