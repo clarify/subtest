@@ -56,6 +56,16 @@ func (vf ValueFunc) ReflectNil() func(t *testing.T) {
 	return vf.Test(ReflectNil())
 }
 
+// MatchRegexp is equivalent to vf.Test(s.MatchRegexp(r)).
+func (vf ValueFunc) MatchRegexp(r *regexp.Regexp) func(t *testing.T) {
+	return vf.Test(MatchRegexp(r))
+}
+
+// MatchRegexpPattern is equivalent to vf.Test(s.MatchRegexpPattern(pattern)).
+func (vf ValueFunc) MatchRegexpPattern(pattern string) func(t *testing.T) {
+	return vf.Test(MatchRegexpPattern(pattern))
+}
+
 // NoError is equivalent to vf.Test(NoError(v)).
 func (vf ValueFunc) NoError() func(t *testing.T) {
 	return vf.Test(NoError())

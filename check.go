@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"reflect"
+	"regexp"
 )
 
 const (
@@ -12,6 +13,8 @@ const (
 	prefixDeepEqual     = "values are not deep equal"
 	prefixNotReflectNil = "value is typed or untyped nil"
 	prefixReflectNil    = "value is neither typed nor untyped nil"
+	prefixNotRegexpType = "value type is not applicable to regular expression matching"
+	prefixMatchRegexp   = "value does not match regular expression"
 	prefixNotErrorType  = "value is not an error type"
 	prefixNoError       = "error value is not nil"
 	prefixError         = "error value is nil"
@@ -86,6 +89,37 @@ func ReflectNil() CheckFunc {
 
 		return nil
 	}
+}
+
+// MatchRegexp returns a check function that fails if the test value does not
+// match r. Allowed test value types are string, []byte, json.RawMessage and
+// io.RuneReader.
+func MatchRegexp(r *regexp.Regexp) CheckFunc {
+	return func(got interface{}) error {
+		var match bool
+		switch gt := got.(type) {
+		case string:
+			match = r.MatchString(gt)
+		case []byte:
+			match = r.Match(gt)
+		case json.RawMessage:
+			match = r.Match([]byte(gt))
+		case io.RuneReader:
+			match = r.MatchReader(gt)
+		default:
+			return FailGot(prefixNotRegexpType, got)
+		}
+		if !match {
+			return FailExpect(prefixMatchRegexp, got, r)
+		}
+		return nil
+	}
+}
+
+// MatchRegexpPattern is a short-hand for
+// MatchRegexp(regexp.MustCompile(pattern)).
+func MatchRegexpPattern(pattern string) CheckFunc {
+	return MatchRegexp(regexp.MustCompile(pattern))
 }
 
 // NoError returns a check function that fails when the test value is a non-nill
