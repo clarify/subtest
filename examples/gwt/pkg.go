@@ -20,7 +20,7 @@ func (r *Register) Register(s string) {
 	r.value = s
 }
 
-// Foo returns the registed value with extra foo or errors if r is empty.
+// Foo returns the registered value with extra foo or errors if r is empty.
 func (r *Register) Foo() (string, error) {
 	if r.value == "" {
 		return "", ErrNothingRegistered
