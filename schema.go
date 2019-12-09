@@ -26,12 +26,17 @@ func (m Fields) OrderedKeys() []interface{} {
 
 // Schema allows simple validation of fields. Currently support only maps.
 type Schema struct {
-	// Fields map
+	// Fields map specific keys to check functions.
 	Fields Fields
-	// Required lists required fields. Defaults to all keys in the Fields map
-	// if nil. To not require any fields, set an empty slice.
+	// Required, if set, contain a list of required keys. When the list is
+	// explicitly defined as an empty list, no keys will be considered required.
+	// When the field holds a nil value, all keys present in Fields will be
+	// considered required.
 	Required []interface{}
-	// AdditionalFields, if set, is run against all fields
+	// AdditionalFields if set, contain a check function used to validate all
+	// fields where the key is not present in Fields. When the field holds a nil
+	// value, no additional keys are allowed. To skip validation of additional
+	// keys, the Any() check can be used.
 	AdditionalFields CheckFunc
 }
 
