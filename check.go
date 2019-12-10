@@ -3,6 +3,7 @@ package subtest
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"reflect"
 	"regexp"
@@ -40,6 +41,78 @@ func (f CheckFunc) Check(vf ValueFunc) error {
 // Any returns a no-operation check function that never fails.
 func Any() CheckFunc {
 	return func(got interface{}) error { return nil }
+}
+
+// LessThan returns a check function that fails when the test value is not a
+// numeric value less than expect.
+func LessThan(expect float64) CheckFunc {
+	return func(got interface{}) error {
+		f, ok := asFloat64(got)
+		if !ok {
+			return FailGot("not representable as float64", got)
+		}
+
+		if !(f < expect) {
+			msg := fmt.Sprintf("not < %f", expect)
+			return FailGot(msg, got)
+		}
+
+		return nil
+	}
+}
+
+// LessThanOrEqual returns a check function that fails when the test value is
+// not a numeric value less than or equal to expect.
+func LessThanOrEqual(expect float64) CheckFunc {
+	return func(got interface{}) error {
+		f, ok := asFloat64(got)
+		if !ok {
+			return FailGot("not representable as float64", got)
+		}
+
+		if !(f <= expect) {
+			msg := fmt.Sprintf("not <= %f", expect)
+			return FailGot(msg, got)
+		}
+
+		return nil
+	}
+}
+
+// GreaterThan returns a check function that fails when the test value is not a
+// numeric value greater than expect.
+func GreaterThan(expect float64) CheckFunc {
+	return func(got interface{}) error {
+		f, ok := asFloat64(got)
+		if !ok {
+			return FailGot("not representable as float64", got)
+		}
+
+		if !(f > expect) {
+			msg := fmt.Sprintf("not > %f", expect)
+			return FailGot(msg, got)
+		}
+
+		return nil
+	}
+}
+
+// GreaterThanOrEqual returns a check function that fails when the test value is
+// not a numeric value greater than or equal to expect.
+func GreaterThanOrEqual(expect float64) CheckFunc {
+	return func(got interface{}) error {
+		f, ok := asFloat64(got)
+		if !ok {
+			return FailGot("not representable as float64", got)
+		}
+
+		if !(f >= expect) {
+			msg := fmt.Sprintf("not >= %f", expect)
+			return FailGot(msg, got)
+		}
+
+		return nil
+	}
 }
 
 // NotDeepEqual returns a check function that fails when the test value deep
