@@ -30,6 +30,7 @@ func Value(v interface{}) ValueFunc {
 func (vf ValueFunc) Test(f CheckFunc) func(t *testing.T) {
 	return func(t *testing.T) {
 		t.Helper()
+
 		if err := f.Check(vf); err != nil {
 			t.Fatal(err)
 		}
@@ -54,6 +55,26 @@ func (vf ValueFunc) NotReflectNil() func(t *testing.T) {
 // ReflectNil is equivalent to vf.Test(ReflectNil(v)).
 func (vf ValueFunc) ReflectNil() func(t *testing.T) {
 	return vf.Test(ReflectNil())
+}
+
+// LessThan is equivalent to vf.Test(LessThan(v)).
+func (vf ValueFunc) LessThan(v float64) func(t *testing.T) {
+	return vf.Test(LessThan(v))
+}
+
+// LessThanOrEqual is equivalent to vf.Test(LessThanOrEqual(v)).
+func (vf ValueFunc) LessThanOrEqual(v float64) func(t *testing.T) {
+	return vf.Test(LessThanOrEqual(v))
+}
+
+// GreaterThan is equivalent to vf.Test(GreaterThan(v)).
+func (vf ValueFunc) GreaterThan(v float64) func(t *testing.T) {
+	return vf.Test(GreaterThan(v))
+}
+
+// GreaterThanOrEqual is equivalent to vf.Test(GreaterThanOrEqual(v)).
+func (vf ValueFunc) GreaterThanOrEqual(v float64) func(t *testing.T) {
+	return vf.Test(GreaterThanOrEqual(v))
 }
 
 // MatchRegexp is equivalent to vf.Test(s.MatchRegexp(r)).
