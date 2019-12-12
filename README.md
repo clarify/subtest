@@ -74,7 +74,6 @@ Here is a version of TestFoo with `subtest`:
 
 ```go
 func TestFoo(t *testing.T) {
-
     t.Run("given foo is 42", func(t *testing.T) {
         const foo = 42
         t.Run("when dividing by 6", func (t *testing.T) {
@@ -188,6 +187,23 @@ func intGt(compare int) subtest.CheckFunc{
     }
 }
 
+// TestCustomValueFunc shows that we can define value functions to
+// generate values before each check.
+func TestCustomValueFunc(t *testing.T) {
+    v := `{"foo": "bar", "bar": 42}`
+    vf := subtest.ValueFunc(func() (interface{}, error) {
+        var target map[string]interface{}
+        err := json.Unmarshal([]byte(v), &target)
+        return target, err
+    })
+    cf := subjson.DeepEqual(map[string]interface{}{
+        "foo": "bar",
+        "bar": 42,
+    })
+
+    t.Run("v match expectations", vf.Test(cf))
+}
+
 // TestSchema shows that we can validate the content of Go map types without
 // requiring an exact match.
 func TestSchema(t *testing.T) {
@@ -243,11 +259,11 @@ For further examples, see the `examples/` sub-directory:
 
 Values to check are wrapped in a producer function (`ValueFunc`). This means that multiple tests can be run against a state-ful value, such as an `io.Reader` by regenerating the value for each check.
 
-## Allow check middleware
+### Allow check middleware
 
 Generally, a sub-test performs of a single check (`CheckFunc`). These checks can be wrapped by middleware to facilitate processing or transformation of values before running the nested check. E.g. parse a byte array from JSON into a Go type.
 
-### Zero-dependencies and un-opinionated
+### Zero-dependencies and unopinionated
 
 For now, the package is zero-dependencies. The important aspect of this to us, is that we don't _force_ potentially opinionated dependencies on the package user in order to offer features. Instead we aim to provide flexible interfaces so that it's easy to integrate your own preferred tools for everything from type formatting to advanced JSON or struct matching.
 
