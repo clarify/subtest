@@ -16,7 +16,7 @@ func TestJSON1(t *testing.T) {
 	const v = `{"name": "foo", "type": "bar"}`
 
 	j := gojsonq.New().JSONString(v)
-	t.Run(".", subtest.Value(j).Test(validSchema))
+	t.Run(".", subtest.Value(j).Test(subtest.CheckFunc(validSchema)))
 	j.Reset()
 	t.Run(".name", subtest.Value(j.Find("name")).DeepEqual("foo"))
 	j.Reset()
@@ -60,7 +60,7 @@ func TestJSON2(t *testing.T) {
 		return gojsonq.New().JSONString(v), nil
 	})
 
-	t.Run(".", vf.Test(validSchema))
+	t.Run(".", vf.Test(subtest.CheckFunc(validSchema)))
 	t.Run(".name", vf.Test(jsonPathEqual("name", "foo")))
 	t.Run(".type", vf.Test(jsonPathEqual("type", "bar")))
 }

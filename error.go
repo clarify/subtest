@@ -7,6 +7,12 @@ import (
 	"reflect"
 )
 
+const (
+	msgNoLen     = "type does not support len"
+	msgNoCap     = "type does not support cap"
+	msgNoFloat64 = "value not convertable to float64"
+)
+
 // Failure is an error type that aid with consistent formatting of test
 // failures. In error matching, two Failure instances are considered equal when
 // their formattet content is the same.
@@ -15,6 +21,8 @@ type Failure struct {
 	Got    string
 	Expect string
 	Reject string
+
+	next error
 }
 
 // Failf formats a plain text failure.
@@ -25,29 +33,35 @@ func Failf(format string, v ...interface{}) Failure {
 // FailExpect formats a failure for content that is not matching some expected
 // value. The package type formatter is used.
 func FailExpect(prefix string, got, expect interface{}) Failure {
+	next, _ := got.(error)
 	return Failure{
 		Prefix: prefix,
 		Got:    formatIndentedType(got),
 		Expect: formatIndentedType(expect),
+		next:   next,
 	}
 }
 
 // FailReject formats a failure for content that is matching some rejected
 // value. The package type formatter is used.
 func FailReject(prefix string, got, reject interface{}) Failure {
+	next, _ := got.(error)
 	return Failure{
 		Prefix: prefix,
 		Got:    formatIndentedType(got),
 		Reject: formatIndentedType(reject),
+		next:   next,
 	}
 }
 
 // FailGot formats a failure for some unexpected content. The package type
 // formatter is used.
 func FailGot(prefix string, got interface{}) Failure {
+	next, _ := got.(error)
 	return Failure{
 		Prefix: prefix,
 		Got:    formatIndentedType(got),
+		next:   next,
 	}
 }
 
@@ -64,6 +78,21 @@ func (f Failure) Error() string {
 		s += fmt.Sprintf(fmtS, "don't want", f.Reject)
 	}
 	return s
+}
+
+// Unwrap returns the next error in the chain, if any.
+func (f Failure) Unwrap() error {
+	return f.next
+}
+
+// Is returns true if f matches target.
+func (f Failure) Is(target error) bool {
+	f2, match := target.(Failure)
+	match = match && f.Prefix == f2.Prefix
+	match = match && f.Got == f2.Got
+	match = match && f.Expect == f2.Expect
+	match = match && f.Reject == f2.Reject
+	return match
 }
 
 // PrefixError wraps a (type-formatted) error with a prefix string.

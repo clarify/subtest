@@ -8,30 +8,32 @@ import (
 )
 
 func TestFoo(t *testing.T) {
-	t.Run("given nothing is registered", func(t *testing.T) {
+	t.Run("Given nothing is registered", func(t *testing.T) {
 		reg := pkg.NewRegister()
 
-		t.Run("when calling reg.Foo", func(t *testing.T) {
+		t.Run("When calling reg.Foo", func(t *testing.T) {
 			result, err := reg.Foo()
-			t.Run("then it should error",
+			t.Run("Then it should error",
 				subtest.Value(err).ErrorIs(pkg.ErrNothingRegistered),
 			)
-			t.Run("then the result should hold a zero-value",
+			t.Run("Then the result should hold a zero-value",
 				subtest.Value(result).DeepEqual(""),
 			)
 		})
 	})
 
-	t.Run("given bar is registered", func(t *testing.T) {
+	t.Run("Given bar is registered", func(t *testing.T) {
 		reg := pkg.NewRegister()
 		reg.Register("bar")
 
-		t.Run("when calling pkg.Foo", func(t *testing.T) {
+		t.Run("When calling pkg.Foo", func(t *testing.T) {
 			bar, err := reg.Foo()
-			if !t.Run("then the result must not fail", subtest.Value(err).NoError()) {
+
+			// Abort further sub-tests on failure by relying on the return status from t.Run.
+			if !t.Run("Then the result must not fail", subtest.Value(err).NoError()) {
 				t.FailNow()
 			}
-			t.Run("then the result should be as expected",
+			t.Run("Then the result should be as expected",
 				subtest.Value(bar).DeepEqual("foobar"),
 			)
 		})

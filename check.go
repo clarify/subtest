@@ -23,24 +23,53 @@ const (
 	prefixErrorIs       = "error value is not matching target error"
 )
 
+// Check describes the interface for a check.
+type Check interface {
+	Check(vf ValueFunc) error
+}
+
 // CheckFunc is a function that return an error on failure.
 type CheckFunc func(got interface{}) error
 
 // Check runs the check function against a value function.
 func (f CheckFunc) Check(vf ValueFunc) error {
+	return check(vf, f)
+}
+
+func check(vf ValueFunc, cf CheckFunc) error {
 	if vf == nil {
 		return FailGot("missing value function", vf)
 	}
 	got, err := vf()
 	if err != nil {
-		return FailGot("value function returns an error", vf)
+		return FailGot("value function returns an error", err)
 	}
-	return f(got)
+	return cf(got)
 }
 
 // Any returns a no-operation check function that never fails.
 func Any() CheckFunc {
 	return func(got interface{}) error { return nil }
+}
+
+// AllOff is a Check type that fails if any of it's members fails.
+type AllOff []Check
+
+// Check runs all member checks and returns an aggregated error of at least one
+// check fails.
+func (cs AllOff) Check(vf ValueFunc) error {
+	var errs Errors
+
+	for _, c := range cs {
+		err := c.Check(vf)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if len(errs) > 0 {
+		return errs
+	}
+	return nil
 }
 
 // LessThan returns a check function that fails when the test value is not a
@@ -108,6 +137,42 @@ func GreaterThanOrEqual(expect float64) CheckFunc {
 
 		if !(f >= expect) {
 			msg := fmt.Sprintf("not >= %f", expect)
+			return FailGot(msg, got)
+		}
+
+		return nil
+	}
+}
+
+// NumericNotEqual returns a check function that fails when the test value is
+// a numeric value equal to expect.
+func NumericNotEqual(expect float64) CheckFunc {
+	return func(got interface{}) error {
+		f, ok := asFloat64(got)
+		if !ok {
+			return FailGot("not representable as float64", got)
+		}
+
+		if f == expect {
+			msg := fmt.Sprintf("not != %f", expect)
+			return FailGot(msg, got)
+		}
+
+		return nil
+	}
+}
+
+// NumericEqual returns a check function that fails when the test value is
+// not a numeric value equal to expect.
+func NumericEqual(expect float64) CheckFunc {
+	return func(got interface{}) error {
+		f, ok := asFloat64(got)
+		if !ok {
+			return FailGot("not representable as float64", got)
+		}
+
+		if f != expect {
+			msg := fmt.Sprintf("not == %f", expect)
 			return FailGot(msg, got)
 		}
 
