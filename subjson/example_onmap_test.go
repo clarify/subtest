@@ -17,13 +17,13 @@ func ExampleOnMap_failingTest() {
 	t.Run("v match cf", subtest.Value(v).Test(
 		subjson.OnMap(cf),
 	))
-	// FIXME: t.Helper issue causes return of value.go:35 instead of this file.
+	// FIXME: t.Helper issue causes return of value.go:112 instead of this file.
 	// Could be related to https://github.com/golang/go/issues/23249.
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
 	// --- FAIL: ParentTest/v_match_cf (0.00s)
-	//     value.go:35: values are not deep equal
+	//     value.go:112: values are not deep equal
 	//         got: map[string]json.RawMessage
 	//             map[bar:[34 98 97 122 34] foo:[34 98 97 114 34]]
 	//         want: map[string]json.RawMessage
@@ -32,23 +32,21 @@ func ExampleOnMap_failingTest() {
 
 func ExampleOnMap_failingSchemaTest() {
 	const v = `{"foo":"bar", "bar":"baz"}`
-	cf := subtest.Schema{
+	c := subtest.Schema{
 		Fields: subtest.Fields{
-			"foo": subjson.OnString(subtest.DeepEqual("bar")),
-			"bar": subtest.DeepEqual(json.RawMessage(`"foobar"`)),
+			"foo": subjson.DecodesTo("bar"),                       // check decoded content.
+			"bar": subtest.DeepEqual(json.RawMessage(`"foobar"`)), // check raw JSON.
 		},
-	}.ValidateMap()
+	}
 
-	t.Run("v match cf", subtest.Value(v).Test(
-		subjson.OnMap(cf),
-	))
-	// FIXME: t.Helper issue causes return of value.go:35 instead of this file.
+	t.Run("v match cf", subtest.Value(v).Test(subjson.OnMap(c)))
+	// FIXME: t.Helper issue causes return of value.go:112 instead of this file.
 	// Could be related to https://github.com/golang/go/issues/23249.
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
 	// --- FAIL: ParentTest/v_match_cf (0.00s)
-	//     value.go:35: value not matching schema:
+	//     value.go:112: value not matching schema:
 	//         #0: key "bar": values are not deep equal
 	//         got: json.RawMessage
 	//             `"baz"`
@@ -72,15 +70,15 @@ func ExampleOnMap_passingTest() {
 
 func ExampleOnMap_passingSchemaTest() {
 	const v = `{"foo":"bar", "bar":"baz"}`
-	cf := subtest.Schema{
+	c := subtest.Schema{
 		Fields: subtest.Fields{
-			"foo": subjson.OnString(subtest.DeepEqual("bar")),
+			"foo": subjson.DecodesTo("bar"),
 			"bar": subtest.DeepEqual(json.RawMessage(`"baz"`)),
 		},
-	}.ValidateMap()
+	}
 
 	t.Run("v match cf", subtest.Value(v).Test(
-		subjson.OnMap(cf),
+		subjson.OnMap(c),
 	))
 	// Output:
 	// === RUN   ParentTest/v_match_cf

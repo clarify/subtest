@@ -8,44 +8,46 @@ import (
 	"github.com/searis/subtest"
 )
 
-func TestSchemaValidateMap(t *testing.T) {
+func TestSchema_map(t *testing.T) {
 	t.Run("given an empty schema", func(t *testing.T) {
-		s := subtest.Schema{}
-		cf := s.ValidateMap()
+		c := subtest.Schema{}
 
+		vf1 := subtest.Value(map[string]string{"a": "", "b": "foo"})
 		t.Run("then additional fields should result in an error",
-			subtest.Value(cf(map[string]string{"a": "", "b": "foo"})).ErrorIs(
+			subtest.Value(c.Check(vf1)).ErrorIs(
 				subtest.Failf(`got additional keys: "a", "b"`),
 			),
 		)
-		t.Run("then a empty string should be recognized as an additional key",
-			subtest.Value(cf(map[string]string{"": ""})).ErrorIs(
+
+		vf2 := subtest.Value(map[string]string{"": ""})
+		t.Run("then an empty string should be recognized as an additional key",
+			subtest.Value(c.Check(vf2)).ErrorIs(
 				subtest.Failf(`got additional keys: ""`),
 			),
 		)
 
 	})
 	t.Run("given a schema with required integer keys and allowed additional fields", func(t *testing.T) {
-		s := subtest.Schema{
+		c := subtest.Schema{
 			Required:         []interface{}{1, 2, 3},
 			AdditionalFields: subtest.Any(),
 		}
-		cf := s.ValidateMap()
 
 		t.Run("then it should match a map[int]string value with all keys",
-			subtest.Value(map[int]string{1: "", 2: "", 3: ""}).Test(cf),
+			subtest.Value(map[int]string{1: "", 2: "", 3: ""}).Test(c),
 		)
 		t.Run("then it should match a map[int]struct{} value with all keys",
-			subtest.Value(map[int]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}}).Test(cf),
+			subtest.Value(map[int]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}}).Test(c),
 		)
 		t.Run("then it should match a map[interface{}]struct{} value with all keys",
-			subtest.Value(map[interface{}]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}}).Test(cf),
+			subtest.Value(map[interface{}]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}}).Test(c),
 		)
 		t.Run("then it should match a map with additional fields",
-			subtest.Value(map[int]string{1: "", 2: "", 3: "", 4: ""}).Test(cf),
+			subtest.Value(map[int]string{1: "", 2: "", 3: "", 4: ""}).Test(c),
 		)
+		vf := subtest.Value(map[int]string{2: ""})
 		t.Run("then missing fields should result in an error",
-			subtest.Value(cf(map[int]string{2: ""})).ErrorIs(
+			subtest.Value(c.Check(vf)).ErrorIs(
 				subtest.Failf("missing required keys: 1, 3"),
 			),
 		)
@@ -63,7 +65,7 @@ func TestJSONSchema(t *testing.T) {
 		return m, nil
 	})
 
-	t.Run("v match schema", vf.ValidateMap(subtest.Schema{
+	t.Run("v match schema", vf.Test(subtest.Schema{
 		Required: []interface{}{"foo", "bar"},
 		Fields: subtest.Fields{
 			"foo": subtest.DeepEqual("bar"),

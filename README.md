@@ -1,11 +1,13 @@
 # subtest
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/searis/subtest)](https://goreportcard.com/report/github.com/searis/subtest)
-[![Documentation](https://godoc.org/github.com/searis/subtest?status.svg)](http://godoc.org/github.com/searis/subtest)
+[![GoDev](https://img.shields.io/static/v1?label=go.dev&message=reference&color=blue)](https://pkg.go.dev/github.com/searis/subtest)
 
-
-`subtest` is a minimalist Go test-utility package used to initializing small test functions for use with the Go sub-tests feature. You can read more about Go sub-tests [here][go-sub-test].
+**subtest** is a minimalist Go test-utility package used to initializing small test functions for use with the Go sub-tests feature. You can read more about Go sub-tests [here][go-sub-test].
 
 The sub-package `subjson` defines middleware for parsing values from JSON before performing checks.
+
+[go-sub-test]: https://blog.golang.org/subtests
 
 ## Introduction
 
@@ -39,24 +41,24 @@ As it turns out, you can actually write GWT-style tests not only without a BDD f
 
 ```go
 func TestFoo(t *testing.T) {
-    t.Run("given foo is 42", func(t *testing.T) {
+    t.Run("Given foo is 42", func(t *testing.T) {
         const foo = 42
-        t.Run("when dividing by 6", func (t *testing.T) {
+        t.Run("When dividing by 6", func (t *testing.T) {
             v := float64(foo) / 6
-            t.Run("then the result should be 7", func(t *testing.T) {
+            t.Run("Then the result should be 7", func(t *testing.T) {
                 if expect := float64(7); v != expect {
                     t.Fatalf("\n got: %d\nwant: %d", v, expect)
                 }
             })
         })
-        t.Run("when dividing by 9", func (t *testing.T) {
+        t.Run("When dividing by 9", func (t *testing.T) {
             v := float64(foo) / 9
-            t.Run("then the result should be greater than 4" func(t *testing.T) {
+            t.Run("Then the result should be greater than 4" func(t *testing.T) {
                 if expect := float64(4); v > expect {
                     t.Fatalf("\n got: %d\nwant > %d", v, expect)
                 }
             })
-            t.Run("then the result should be less than 5" func(t *testing.T) {
+            t.Run("Then the result should be less than 5" func(t *testing.T) {
                 if expect := float64(5); v < expect {
                     t.Fatalf("\n got: %d\nwant < %d", v, expect)
                 }
@@ -74,171 +76,118 @@ Here is a version of TestFoo with `subtest`:
 
 ```go
 func TestFoo(t *testing.T) {
-    t.Run("given foo is 42", func(t *testing.T) {
+    t.Run("Given foo is 42", func(t *testing.T) {
         const foo = 42
-        t.Run("when dividing by 6", func (t *testing.T) {
+        t.Run("When dividing by 6", func (t *testing.T) {
             vf := subtest.Value(float64(foo) / 6)
-            t.Run("then the result should be 7", vf.DeepEqual(float64(7)))
+            t.Run("Then the result should be 7", vf.NumericEqual(7))
         })
-        t.Run("when dividing by 9", func (t *testing.T) {
+        t.Run("When dividing by 9", func (t *testing.T) {
             vf := subtest.Value(float64(foo) / 6)
-            t.Run("then the result should be greater than 4", vf.GreaterThan(4))
-            t.Run("then the result should be less than 5", vf.LessThan(5))
+            t.Run("Then the result should be greater than 4", vf.GreaterThan(4))
+            t.Run("Then the result should be less than 5", vf.LessThan(5))
         })
     })
 }
 ```
 
-## Short names
+## Usage
 
-Some common short names used in examples:
+### Illustrative example
 
-- `v`: a value
-- `vf`: a value function
-- `cf`: a check function
-
-## Examples
-
-[go-sub-test]: https://blog.golang.org/subtests
-
-Here is some example test code using `subtest` and `subjson`:
+Building and running a subtest is generally composed of six steps. Normally you do not do each steps as explicit as described below, but to illustrate the general flow, we have spelled this out.
 
 ```go
- // TestFooExplicit shows the general syntax for using subtest written in very
- // explicit steps. All usage of subtest follows these basic steps. Tests are
- // not usually written as explicit though; see TestFooFewerLines or
- // TestFooShortHand for more realistic variants.
+ // TestFooExplicit shows the different steps of building a subtest.
 func TestFooExplicit(t *testing.T) {
     // 1. We declare the value we want to check; usually the result of an
     // operation or action.
     v := "foo"
 
     // 2. We initialize a value function for the value that we want to check.
+    // There are several different initializers we can call to get a value
+    // function; this is the simplest one.
     vf := subtest.Value(v)
 
-    // 3. We initialize the check function we want to use.
-    cf := subtest.NotDeepEqual("bar")
+    // 3. We initialize the check we want to use. A check is anything that
+    // implements the Check interface.
+    c := subtest.NumericEquals(3)
 
-    // 4. We initialize a test function by passing the check function to the
-    // value function's Test method.
-    tf := vf.Test(cf)
+    // 4. We can optionally wrap our check with middleware.
+    c = subtest.OnLen(c)
 
-    // 5. We run the test function as a sub-test.
-    t.Run("v != bar", tf)
-}
+    // 5. We initialize a test function by passing the check to the value
+    // function's Test method.
+    tf := vf.Test(c)
 
-// TestFooFewerLines writes TestFooExplicit in fewer lines of code, but is
-// exactly equivalent.
-func TestFooFewerLines(t *testing.T) {
-    v := "foo"
-    t.Run("v != bar" subtest.Value(v).Test(subtest.NotDeepEqual("bar"))
-}
-
-
-// TestFooShortHand is an even shorter way of writing TestFooExplicit. It relies
-// on short-hand methods defined on a value function for generating tests for
-// our built-in check functions. In fact, all built-in checks has a short-hand
-// format like this.
-func TestFooShortHand(t *testing.T) {
-    v := "foo"
-    t.Run("v != bar", subtest.Value(v).NotDeepEqual("bar"))
-}
-
-
-// TestMultiple1 shows that a "subtest.ValueFunc" instance can be used to run
-// several tests.
-func TestMultiple1(t *testing.T) {
-    v := "foo"
-    vf := subtest.Value(v) // returns a reusable subtest.ValueFunc instance.
-
-    t.Run("v != bar", vf.NotDeepEqual("bar"))
-    t.Run("v == foo", vf.DeepEqual("foo"))
-}
-
-// TestMultiple2 shows that a "subtest.CheckFunc" can be used to test multiple
-// values.
-func TestMultiple2(t *testing.T) {
-    notEmpty := subtest.NotDeepEqual("")
-
-    for _, s := range []string{"foo", "bar"} {
-        name := fmt.Sprintf(`%q != ""`)
-        t.Run(name, subtest.Value(s).Test(notEmpty))
-    }
-}
-
-// TestCustomCheckFunc shows that we can define custom check functions to
-// initialize tests.
-func TestCustomCheckFunc(t *testing.T) {
-    v := "foo"
-
-    t.Run("len(v) > 2", subtest.Value(len(v)).Test(intGt(2)))
-}
-
-func intGt(compare int) subtest.CheckFunc{
-    return func(got interface{}) error {
-        i, ok := got.(int)
-        if !ok {
-           return subtest.FailureGot("not an integer value", v)
-        }
-        if !(i > compare) {
-            return subtest.FailureGot(fmt.Sprintf("value <= %v", compare), got)
-        }
-        return nil
-    }
-}
-
-// TestCustomValueFunc shows that we can define value functions to
-// generate values before each check.
-func TestCustomValueFunc(t *testing.T) {
-    v := `{"foo": "bar", "bar": 42}`
-    vf := subtest.ValueFunc(func() (interface{}, error) {
-        var target map[string]interface{}
-        err := json.Unmarshal([]byte(v), &target)
-        return target, err
-    })
-    cf := subjson.DeepEqual(map[string]interface{}{
-        "foo": "bar",
-        "bar": 42,
-    })
-
-    t.Run("v match expectations", vf.Test(cf))
-}
-
-// TestSchema shows that we can validate the content of Go map types without
-// requiring an exact match.
-func TestSchema(t *testing.T) {
-    var v = map[string]interface{}{"foo": "bar", "bar": 42}
-
-    cf := subtest.Schema{
-        Required: []interface{}{"foo", "bar"},
-        Fields: subtest.Fields{
-            "foo": subtest.DeepEqual("bar"),
-            "bar": subtest.GreaterThan(41),
-    }.ValidateMap()
-
-    t.Run("v match schema", subtest.Value(v).Test(cf))
-}
-
-// TestJSONSchema shows that we can use schema validation and subjson middleware
-// together to validate JSON fields. Package subjson middleware allows parsing
-// []byte, string and json.RawMessage values to Go types before performing a
-// check. See the package documentation to better understand which Go types are
-// returned by each function.
-func TestJSONSchema(t *testing.T) {
-    const v = `{"foo": "bar", "bar": 42}`
-
-    cf := subtest.Schema{
-        Required: []interface{}{"foo", "bar"},
-        Fields: subtest.Fields{
-            "foo": subjson.OnString(subtest.DeepEqual("bar")),
-            "bar": subjson.OnFloat64(subtest.GreaterThan(41)),
-    }.ValidateMap()
-
-    t.Run("v match schema", subtest.Value(v).Test(subjson.OnMap(cf)))
+    // 6. We run the test function as a sub-test.
+    t.Run("len(v) == 3", tf)
 }
 ```
 
-For further examples, see the `examples/` sub-directory:
+If we where going to do this every time, we would grow tiered. Therefore there is several short-hand methods defined on the Check and ValueFunc instances that makes things easier. The least verbose variant we can write of the test bellow, is as follows:
+
+```go
+func TestFoo(t *testing.T) {
+    v := "foo"
+
+    t.Run("len(v) == 3", subtest.Len(v).NumericEquals(3))
+}
+
+```
+
+### JSON Schema validation
+
+It is possible to validate more than just equality with subtest. The `subtest.Schema` type allows advanced validation of any Go map type, and in the future, perhaps also for structs. From the `subjson` package we can use `ValueFunc` initializers, `Check` implementations and check middleware to decode JSON from `string`, `[]byte` and `json.RawMessage` values. Combining these two mechanisms we can do advanced validation of JSON content.
+
+```go
+func TestJSONMap(t *testing.T) {
+    v := `{"foo": "bar", "baz": "foobar"}`
+
+    expect := subtest.Schema{
+        Fields: subtest.Fields{
+            "foo": subjson.DecodesTo("bar")
+            "baz": subjson.OnLen(subtest.AllOf{
+                subtest.GreaterThan(3),
+                subtest.LessThan(8),
+            }),
+        },
+    }
+
+    t.Run("match expectations", subjson.Map(v).Test(expect))
+}
+```
+
+### Required checks
+
+This is perhaps not commonly known, but the `t.Run` function actually return `false` if there is a failure. Or to be more accurate:
+
+> Run reports whether f succeeded (or at least did not fail before calling t.Parallel).
+
+Because subtest checks do not call `t.Parallel`, this can be utilized to stop test-execution if a "required" sub-test fails.
+
+```go
+func TestFoo(t *testing.T) {
+    v, err := foo()
+
+    if !t.Run("err == nil", subtest.Value(err).NoError()) {
+        // Abort further tests if failed.
+        t.FailNow()
+    }
+    // Never run when err != nil.
+    t.Run("v == foo", subtest.Value(v).DeepEqual("foo"))
+}
+
+func foo() (string, error) {
+    return "", errors.New("failed")
+}
+```
+
+### Extendability
+
+The subtest library itself is currently zero-dependencies. The important aspect of this is that we do not force opinionated dependencies on the user. However, it's also written to be relatively easy to extend.
+
+For specialized use cases and customization, see the `examples/` sub-directory:
 
 - `examples/gwt`: Example of tests following the [Given-When-Then][gwt] naming convention.
 - `examples/colorfmt`: Example of custom type formatting with colors via the [pp][pp] package.
@@ -251,44 +200,40 @@ For further examples, see the `examples/` sub-directory:
 
 ## Features
 
+Some key features of **subtest** is described below.
+
 ### Utilize the standard test runner
 
-`subtest` initializes test functions intended for usage with the `Run` method on the `testing.T` type, and uses a plain output format by default. This means that tooling and IDE features built up around output from the standard test runner will work as expected.
+**subtest** initializes test functions intended for usage with the `Run` method on the `testing.T` type, and uses a plain output format by default. This means that tooling and IDE features built up around output from the standard test runner will work as expected.
 
 ### Check State-ful values
 
-Values to check are wrapped in a producer function (`ValueFunc`). This means that multiple tests can be run against a state-ful value, such as an `io.Reader` by regenerating the value for each check.
+Values to check are wrapped in a value function (`ValueFunc`). By setting up your own value function, you can easily run several tests against state-ful types, such as an io.Reader, where each check starts with
+a clean slate.
 
-### Allow check middleware
+### Check middleware
 
-Generally, a sub-test performs of a single check (`CheckFunc`). These checks can be wrapped by middleware to facilitate processing or transformation of values before running the nested check. E.g. parse a byte array from JSON into a Go type.
+Generally, a sub-test performs of a single check (`CheckFunc`). These checks can be wrapped by middleware to facilitate processing or transformation of values before running nested checks. E.g. parse a byte array from JSON into a Go type, or extract the length of an array.
 
-### Zero-dependencies and unopinionated
+### Plain output
 
-For now, the package is zero-dependencies. The important aspect of this to us, is that we don't _force_ potentially opinionated dependencies on the package user in order to offer features. Instead we aim to provide flexible interfaces so that it's easy to integrate your own preferred tools for everything from type formatting to advanced JSON or struct matching.
+The quicker a failed test can be understood, the quicker it can be fixed. `subtest`'s default failure formatting is inspired by the short and simplistic style used for unit tests within the Go standard library. We have extended this syntax only so that we can more easily format the expected type and value.
 
-### Clear and plain output
-
-The quicker a failed test can be understood, the quicker it can be fixed. `subtest`'s default failure formatting is inspired heavily by the short and simplistic style used for unit tests within the Go standard library.
-
-Example output from our own tests:
+Example output from an `exaples/gwt`:
 
 ```plain
---- FAIL: TestCheckNotReflectNil (0.00s)
-    --- FAIL: TestCheckNotReflectNil/nil_struct_pointer (0.00s)
-        /Users/smyrman/Code/subtest/check_test.go:127: error value is not matching target error
-            got: subtest.Failure
-                value is typed or untyped nil
-                got: *subtest_test.T
-                    {Foo:}
-            want: subtest.Failure
-                value is typed or untyped nil
-                got: *subtest_test.T
-                    nil
+--- FAIL: TestFoo (0.00s)
+    --- FAIL: TestFoo/Given_nothing_is_registered (0.00s)
+        --- FAIL: TestFoo/Given_nothing_is_registered/When_calling_reg.Foo (0.00s)
+            --- FAIL: TestFoo/Given_nothing_is_registered/When_calling_reg.Foo/Then_the_result_should_hold_a_zero-value (0.00s)
+                pkg_test.go:19: values are not deep equal
+                    got: string
+                        "oops"
+                    want: string
+                        ""
 FAIL
-FAIL    github.com/searis/subtest    0.006s
+FAIL	github.com/searis/subtest/examples/gwt	0.057s
 FAIL
-Error: Tests failed.
 ```
 
 Be aware that the default type formatter currently do not expand nested pointer values.
@@ -359,54 +304,3 @@ func init() {
 [litter]: https://github.com/sanity-io/litter
 [go-spew]: https://github.com/davecgh/go-spew
 [pp]: https://github.com/k0kubun/pp
-
-### GWT-style sub-tests
-
-Although `subtest` does not encourage nor limit sub-tests to follow any particular style, one of the main motivations for writing `subtest` was to allow easier [Given-When-Then][gwt] (GWT) style testing relying on pure Go sub-tests.
-
-Below is an example of sub-tests with GWT-style naming:
-
-[gwt]: https://martinfowler.com/bliki/GivenWhenThen.html
-
-```go
-package gwt_test
-
-import (
-    "testing"
-
-    "github.com/searis/subtest"
-    pkg "github.com/searis/subtest/examples/gwt"
-)
-
-func TestFoo(t *testing.T) {
-    t.Run("given nothing is registered", func(t *testing.T) {
-        reg := pkg.NewRegister()
-
-        t.Run("when calling reg.Foo", func(t *testing.T) {
-            result, err := reg.Foo()
-            t.Run("then it should error",
-                subtest.Value(err).ErrorIs(pkg.ErrNothingRegistered),
-            )
-            t.Run("then the result should hold a zero-value",
-                subtest.Value(result).DeepEqual(""),
-            )
-        })
-    })
-
-    t.Run("given bar is registered", func(t *testing.T) {
-        reg := pkg.NewRegister()
-        reg.Register("bar")
-
-        t.Run("when calling pkg.Foo", func(t *testing.T) {
-            bar, err := reg.Foo()
-            if !t.Run("then the result must not fail", subtest.Value(err).NoError()) {
-                t.FailNow()
-            }
-            t.Run("then the result should be as expected",
-                subtest.Value(bar).DeepEqual("foobar"),
-            )
-        })
-    })
-}
-
-```

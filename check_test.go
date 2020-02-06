@@ -311,6 +311,81 @@ func TestGreaterThanOrEqual(t *testing.T) {
 	})
 }
 
+func TestNumericEqual(t *testing.T) {
+	t.Run("given a value float64(42)", func(t *testing.T) {
+		v := float64(42)
+		t.Run("when cheking against 41", func(t *testing.T) {
+			cf := subtest.NumericEqual(41)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "not == 41.000000",
+				Got:    "float64\n\t42",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against 42", func(t *testing.T) {
+			cf := subtest.NumericEqual(42)
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against 43", func(t *testing.T) {
+			cf := subtest.NumericEqual(43)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "not == 43.000000",
+				Got:    "float64\n\t42",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+}
+
+func TestNumericNotEqual(t *testing.T) {
+	t.Run("given a value float64(42)", func(t *testing.T) {
+		v := float64(42)
+		t.Run("when cheking against 41", func(t *testing.T) {
+			cf := subtest.NumericEqual(41)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "not == 41.000000",
+				Got:    "float64\n\t42",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against 42", func(t *testing.T) {
+			cf := subtest.NumericEqual(42)
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against 43", func(t *testing.T) {
+			cf := subtest.NumericEqual(43)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "not == 43.000000",
+				Got:    "float64\n\t42",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a value int16(42)", func(t *testing.T) {
+		v := int16(42)
+		t.Run("when cheking against 42", func(t *testing.T) {
+			cf := subtest.GreaterThanOrEqual(42)
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against 43", func(t *testing.T) {
+			cf := subtest.GreaterThanOrEqual(43)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "not >= 43.000000",
+				Got:    "int16\n\t42",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+}
+
 func TestRegexp(t *testing.T) {
 	t.Run("given a regular expression check function", func(t *testing.T) {
 		cf := subtest.MatchRegexp(regexp.MustCompile(`^"f.*a.?r"$`))
