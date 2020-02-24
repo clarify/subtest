@@ -27,3 +27,12 @@ func OnCap(cf Check) CheckFunc {
 		return cf.Check(vf)
 	}
 }
+
+// OnIndex returns a check function where the item at index i of the test value
+// is passed on to c. Accepted input types are arrays, slices and strings.
+func OnIndex(i int, c Check) CheckFunc {
+	return func(got interface{}) error {
+		vf := Index(got, i)
+		return c.Check(vf)
+	}
+}
