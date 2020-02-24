@@ -28,7 +28,7 @@ func TestFloat64(t *testing.T) {
 		json.Number("42"),
 	}
 	for _, v := range validInputs {
-		name := fmt.Sprintf("When calling asFloat64 on %T", v)
+		name := fmt.Sprintf("When resolving Float64 from %T", v)
 		t.Run(name, func(t *testing.T) {
 			vf := subtest.Float64(v)
 			t.Run("Then we should get the correct float64 value", vf.DeepEqual(float64(42)))

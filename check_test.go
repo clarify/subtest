@@ -370,18 +370,18 @@ func TestNumericNotEqual(t *testing.T) {
 	t.Run("given a value int16(42)", func(t *testing.T) {
 		v := int16(42)
 		t.Run("when cheking against 42", func(t *testing.T) {
-			cf := subtest.GreaterThanOrEqual(42)
-			vf := subtest.Value(cf(v))
-			t.Run("then it should not fail", vf.NoError())
-		})
-		t.Run("when cheking against 43", func(t *testing.T) {
-			cf := subtest.GreaterThanOrEqual(43)
+			cf := subtest.NotNumericEqual(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
 				Prefix: "not >= 43.000000",
 				Got:    "int16\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against 43", func(t *testing.T) {
+			cf := subtest.NotNumericEqual(43)
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
 		})
 	})
 }
