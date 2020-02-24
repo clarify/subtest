@@ -33,7 +33,7 @@ func Len(v interface{}) ValueFunc {
 	return func() (interface{}, error) {
 		l, ok := asLen(v)
 		if !ok {
-			return nil, FailGot(msgNoLen, v)
+			return nil, FailGot(msgNotLenType, v)
 		}
 		return l, nil
 	}
@@ -54,7 +54,7 @@ func Cap(v interface{}) ValueFunc {
 	return func() (interface{}, error) {
 		l, ok := asCap(v)
 		if !ok {
-			return nil, FailGot(msgNoCap, v)
+			return nil, FailGot(msgNotCapType, v)
 		}
 		return l, nil
 	}
@@ -82,7 +82,7 @@ func Index(v interface{}, i int) ValueFunc {
 			}
 			return rv.Index(i).Interface(), nil
 		default:
-			return nil, FailGot(msgNoIndex, v)
+			return nil, FailGot(msgNotIndexType, v)
 		}
 	}
 }
@@ -93,7 +93,7 @@ func Float64(v interface{}) ValueFunc {
 	return func() (interface{}, error) {
 		f, ok := asFloat64(v)
 		if !ok {
-			return nil, FailGot(msgNoFloat64, v)
+			return nil, FailGot(msgNotFloat64, v)
 		}
 		return f, nil
 	}

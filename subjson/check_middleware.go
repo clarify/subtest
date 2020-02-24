@@ -1,6 +1,8 @@
 package subjson
 
 import (
+	"fmt"
+
 	"github.com/searis/subtest"
 )
 
@@ -8,7 +10,11 @@ import (
 // string.
 func OnString(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(String(got))
+		err := c.Check(String(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded string: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -16,7 +22,11 @@ func OnString(c subtest.Check) subtest.CheckFunc {
 // json.Number before it's passed to cf.
 func OnNumber(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Number(got))
+		err := c.Check(Number(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded number: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -24,7 +34,11 @@ func OnNumber(c subtest.Check) subtest.CheckFunc {
 // int64 before it's passed to cf.
 func OnInt64(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Int64(got))
+		err := c.Check(Int64(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded int64: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -32,7 +46,11 @@ func OnInt64(c subtest.Check) subtest.CheckFunc {
 // float64 before it's passed to cf.
 func OnFloat64(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Float64(got))
+		err := c.Check(Float64(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded float64: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -40,7 +58,11 @@ func OnFloat64(c subtest.Check) subtest.CheckFunc {
 // []json.RawMessage before it's passed to cf.
 func OnSlice(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Slice(got))
+		err := c.Check(Slice(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded slice: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -48,7 +70,11 @@ func OnSlice(c subtest.Check) subtest.CheckFunc {
 // map[string]json.RawMessage before it's passed to cf.
 func OnMap(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Map(got))
+		err := c.Check(Map(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded map: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -56,6 +82,10 @@ func OnMap(c subtest.Check) subtest.CheckFunc {
 // interface{} value.
 func OnInterface(c subtest.Check) subtest.CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Interface(got))
+		err := c.Check(Interface(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded value: %w", err)
+		}
+		return nil
 	}
 }

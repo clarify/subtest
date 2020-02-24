@@ -9,20 +9,6 @@ import (
 	"regexp"
 )
 
-const (
-	prefixNotDeepEqual  = "values are deep equal"
-	prefixDeepEqual     = "values are not deep equal"
-	prefixNotReflectNil = "value is typed or untyped nil"
-	prefixReflectNil    = "value is neither typed nor untyped nil"
-	prefixNotRegexpType = "value type is not applicable to regular expression matching"
-	prefixMatchRegexp   = "value does not match regular expression"
-	prefixNotErrorType  = "value is not an error type"
-	prefixNoError       = "error value is not nil"
-	prefixError         = "error value is nil"
-	prefixErrorIsNot    = "error value is matching target error"
-	prefixErrorIs       = "error value is not matching target error"
-)
-
 // Check describes the interface for a check.
 type Check interface {
 	Check(vf ValueFunc) error
@@ -42,7 +28,7 @@ func check(vf ValueFunc, cf CheckFunc) error {
 	}
 	got, err := vf()
 	if err != nil {
-		return FailGot("value function returns an error", err)
+		return fmt.Errorf("value function: %w", err)
 	}
 	return cf(got)
 }
@@ -78,11 +64,11 @@ func LessThan(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
-			return FailGot("not representable as float64", got)
+			return FailGot(msgNotFloat64, got)
 		}
 
 		if !(f < expect) {
-			msg := fmt.Sprintf("not < %f", expect)
+			msg := fmt.Sprintf("%s %f", msgLessThan, expect)
 			return FailGot(msg, got)
 		}
 
@@ -96,11 +82,11 @@ func LessThanOrEqual(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
-			return FailGot("not representable as float64", got)
+			return FailGot(msgNotFloat64, got)
 		}
 
 		if !(f <= expect) {
-			msg := fmt.Sprintf("not <= %f", expect)
+			msg := fmt.Sprintf("%s %f", msgLessThanOrEqual, expect)
 			return FailGot(msg, got)
 		}
 
@@ -114,11 +100,11 @@ func GreaterThan(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
-			return FailGot("not representable as float64", got)
+			return FailGot(msgNotFloat64, got)
 		}
 
 		if !(f > expect) {
-			msg := fmt.Sprintf("not > %f", expect)
+			msg := fmt.Sprintf("%s %f", msgGreaterThan, expect)
 			return FailGot(msg, got)
 		}
 
@@ -132,11 +118,11 @@ func GreaterThanOrEqual(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
-			return FailGot("not representable as float64", got)
+			return FailGot(msgNotFloat64, got)
 		}
 
 		if !(f >= expect) {
-			msg := fmt.Sprintf("not >= %f", expect)
+			msg := fmt.Sprintf("%s %f", msgGreaterThanOrEqual, expect)
 			return FailGot(msg, got)
 		}
 
@@ -150,12 +136,11 @@ func NotNumericEqual(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
-			return FailGot("not representable as float64", got)
+			return FailGot(msgNotFloat64, got)
 		}
 
 		if f == expect {
-			msg := fmt.Sprintf("not != %f", expect)
-			return FailGot(msg, got)
+			return FailReject(msgNotNumericEqual, got, expect)
 		}
 
 		return nil
@@ -168,12 +153,11 @@ func NumericEqual(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
-			return FailGot("not representable as float64", got)
+			return FailGot(msgNotFloat64, got)
 		}
 
 		if f != expect {
-			msg := fmt.Sprintf("not == %f", expect)
-			return FailGot(msg, got)
+			return FailExpect(msgNumericEqual, got, expect)
 		}
 
 		return nil
@@ -185,7 +169,7 @@ func NumericEqual(expect float64) CheckFunc {
 func NotDeepEqual(reject interface{}) CheckFunc {
 	return func(got interface{}) error {
 		if reflect.DeepEqual(reject, got) {
-			return FailReject(prefixNotDeepEqual, got, reject)
+			return FailReject(msgNotDeepEqual, got, reject)
 		}
 		return nil
 	}
@@ -196,7 +180,7 @@ func NotDeepEqual(reject interface{}) CheckFunc {
 func DeepEqual(expect interface{}) CheckFunc {
 	return func(got interface{}) error {
 		if !reflect.DeepEqual(expect, got) {
-			return FailExpect(prefixDeepEqual, got, expect)
+			return FailExpect(msgDeepEqual, got, expect)
 		}
 		return nil
 	}
@@ -209,7 +193,7 @@ func NotReflectNil() CheckFunc {
 		rv := reflect.ValueOf(got)
 
 		if got == nil || (rv.Kind() == reflect.Ptr && rv.IsNil()) {
-			return FailGot(prefixNotReflectNil, got)
+			return FailGot(msgNotReflectNil, got)
 		}
 		return nil
 	}
@@ -222,7 +206,7 @@ func ReflectNil() CheckFunc {
 		rv := reflect.ValueOf(got)
 
 		if got != nil && !(rv.Kind() == reflect.Ptr && rv.IsNil()) {
-			return FailGot(prefixReflectNil, got)
+			return FailGot(msgReflectNil, got)
 		}
 
 		return nil
@@ -247,10 +231,10 @@ func MatchRegexp(r *regexp.Regexp) CheckFunc {
 		case error:
 			match = gt != nil && r.MatchString(gt.Error())
 		default:
-			return FailGot(prefixNotRegexpType, got)
+			return FailGot(msgNotRegexpType, got)
 		}
 		if !match {
-			return FailExpect(prefixMatchRegexp, got, r)
+			return FailExpect(msgMatchRegexp, got, r)
 		}
 		return nil
 	}
@@ -267,10 +251,10 @@ func NoError() CheckFunc {
 	return func(got interface{}) error {
 		err, ok := got.(error)
 		if !ok && got != nil { // nil never converts to an error interface.
-			return FailGot(prefixNotErrorType, got)
+			return FailGot(msgNotErrorType, got)
 		}
 		if ok && err != nil {
-			return FailGot(prefixNoError, err)
+			return FailGot(msgNoError, err)
 		}
 		return nil
 	}
@@ -282,10 +266,10 @@ func Error() CheckFunc {
 	return func(got interface{}) error {
 		err, ok := got.(error)
 		if !ok && got != nil { // nil never converts to an error interface.
-			return FailGot(prefixNotErrorType, got)
+			return FailGot(msgNotErrorType, got)
 		}
 		if err == nil {
-			return FailGot(prefixError, err)
+			return FailGot(msgError, err)
 		}
 		return nil
 	}
@@ -297,10 +281,10 @@ func ErrorIsNot(target error) CheckFunc {
 	return func(got interface{}) error {
 		err, ok := got.(error)
 		if !ok && got != nil {
-			return FailGot(prefixNotErrorType, got)
+			return FailGot(msgNotErrorType, got)
 		}
 		if errors.Is(err, target) {
-			return FailReject(prefixErrorIsNot, err, target)
+			return FailReject(msgErrorIsNot, err, target)
 		}
 		return nil
 	}
@@ -312,10 +296,10 @@ func ErrorIs(target error) CheckFunc {
 	return func(got interface{}) error {
 		err, ok := got.(error)
 		if !ok && got != nil {
-			return FailGot(prefixNotErrorType, got)
+			return FailGot(msgNotErrorType, got)
 		}
 		if !errors.Is(err, target) {
-			return FailExpect(prefixErrorIs, err, target)
+			return FailExpect(msgErrorIs, err, target)
 		}
 		return nil
 	}

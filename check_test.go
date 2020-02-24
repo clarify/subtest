@@ -18,7 +18,7 @@ func TestDeepEqual(t *testing.T) {
 		t.Run("when cheking against false", func(t *testing.T) {
 			vf := subtest.Value(cf(false))
 			t.Run("then an appropriate error should be returned", vf.ErrorIs(subtest.Failure{
-				Prefix: "values are not deep equal",
+				Prefix: "not deep equal",
 				Got:    "bool\n\tfalse",
 				Expect: "bool\n\ttrue",
 			}))
@@ -65,7 +65,7 @@ func TestNotDeepEqual(t *testing.T) {
 		t.Run("when cheking against false", func(t *testing.T) {
 			vf := subtest.Value(cf(false))
 			t.Run("then an appropriate error should be returned", vf.ErrorIs(subtest.Failure{
-				Prefix: "values are deep equal",
+				Prefix: "deep equal",
 				Got:    "bool\n\tfalse",
 				Reject: "bool\n\tfalse",
 			}))
@@ -119,7 +119,7 @@ func TestCheckReflectNil(t *testing.T) {
 	t.Run("when cheking against a non-nil struct pointer", func(t *testing.T) {
 		vf := subtest.Value(cf(&T{}))
 		t.Run("then an appropriate error should be returned", vf.ErrorIs(subtest.Failure{
-			Prefix: "value is neither typed nor untyped nil",
+			Prefix: "neither typed nor untyped nil",
 			Got:    "*subtest_test.T\n\t{Foo:}",
 		}))
 	})
@@ -134,14 +134,14 @@ func TestCheckNotReflectNil(t *testing.T) {
 	t.Run("when cheking against untyped nil", func(t *testing.T) {
 		vf := subtest.Value(cf(nil))
 		t.Run("then an appropriate error should be returned", vf.ErrorIs(subtest.Failure{
-			Prefix: "value is typed or untyped nil",
+			Prefix: "typed or untyped nil",
 			Got:    "untyped nil",
 		}))
 	})
 	t.Run("when cheking against a nil struct pointer", func(t *testing.T) {
 		vf := subtest.Value(cf((*T)(nil)))
 		t.Run("then an appropriate error should be returned", vf.ErrorIs(subtest.Failure{
-			Prefix: "value is typed or untyped nil",
+			Prefix: "typed or untyped nil",
 			Got:    "*subtest_test.T\n\tnil",
 		}))
 	})
@@ -165,7 +165,7 @@ func TestLessThan(t *testing.T) {
 			cf := subtest.LessThan(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not < 42.000000",
+				Prefix: "not less than 42.000000",
 				Got:    "float64\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -182,7 +182,7 @@ func TestLessThan(t *testing.T) {
 			cf := subtest.LessThan(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not < 42.000000",
+				Prefix: "not less than 42.000000",
 				Got:    "int16\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -207,7 +207,7 @@ func TestLessThanOrEqual(t *testing.T) {
 			cf := subtest.LessThanOrEqual(41)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not <= 41.000000",
+				Prefix: "not less than or equal to 41.000000",
 				Got:    "float64\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -224,7 +224,7 @@ func TestLessThanOrEqual(t *testing.T) {
 			cf := subtest.LessThanOrEqual(41)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not <= 41.000000",
+				Prefix: "not less than or equal to 41.000000",
 				Got:    "int16\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -244,7 +244,7 @@ func TestGreaterThan(t *testing.T) {
 			cf := subtest.GreaterThan(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not > 42.000000",
+				Prefix: "not greater than 42.000000",
 				Got:    "float64\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -261,7 +261,7 @@ func TestGreaterThan(t *testing.T) {
 			cf := subtest.GreaterThan(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not > 42.000000",
+				Prefix: "not greater than 42.000000",
 				Got:    "int16\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -286,7 +286,7 @@ func TestGreaterThanOrEqual(t *testing.T) {
 			cf := subtest.GreaterThanOrEqual(43)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not >= 43.000000",
+				Prefix: "not greater than or equal to 43.000000",
 				Got:    "float64\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -303,7 +303,7 @@ func TestGreaterThanOrEqual(t *testing.T) {
 			cf := subtest.GreaterThanOrEqual(43)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not >= 43.000000",
+				Prefix: "not greater than or equal to 43.000000",
 				Got:    "int16\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
@@ -318,8 +318,9 @@ func TestNumericEqual(t *testing.T) {
 			cf := subtest.NumericEqual(41)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not == 41.000000",
+				Prefix: "not numeric equal",
 				Got:    "float64\n\t42",
+				Expect: "float64\n\t41",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})
@@ -332,39 +333,37 @@ func TestNumericEqual(t *testing.T) {
 			cf := subtest.NumericEqual(43)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not == 43.000000",
+				Prefix: "not numeric equal",
 				Got:    "float64\n\t42",
+				Expect: "float64\n\t43",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})
 	})
 }
 
-func TestNumericNotEqual(t *testing.T) {
+func TestNotNumericEqual(t *testing.T) {
 	t.Run("given a value float64(42)", func(t *testing.T) {
 		v := float64(42)
 		t.Run("when cheking against 41", func(t *testing.T) {
-			cf := subtest.NumericEqual(41)
-			vf := subtest.Value(cf(v))
-			expect := subtest.Failure{
-				Prefix: "not == 41.000000",
-				Got:    "float64\n\t42",
-			}
-			t.Run("then it should fail", vf.ErrorIs(expect))
-		})
-		t.Run("when cheking against 42", func(t *testing.T) {
-			cf := subtest.NumericEqual(42)
+			cf := subtest.NotNumericEqual(41)
 			vf := subtest.Value(cf(v))
 			t.Run("then it should not fail", vf.NoError())
 		})
-		t.Run("when cheking against 43", func(t *testing.T) {
-			cf := subtest.NumericEqual(43)
+		t.Run("when cheking against 42", func(t *testing.T) {
+			cf := subtest.NotNumericEqual(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not == 43.000000",
+				Prefix: "numeric equal",
 				Got:    "float64\n\t42",
+				Reject: "float64\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against 43", func(t *testing.T) {
+			cf := subtest.NotNumericEqual(43)
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
 		})
 	})
 	t.Run("given a value int16(42)", func(t *testing.T) {
@@ -373,8 +372,9 @@ func TestNumericNotEqual(t *testing.T) {
 			cf := subtest.NotNumericEqual(42)
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "not >= 43.000000",
+				Prefix: "numeric equal",
 				Got:    "int16\n\t42",
+				Reject: "float64\n\t42",
 			}
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})

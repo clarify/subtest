@@ -8,11 +8,36 @@ import (
 )
 
 const (
-	msgNoLen           = "type does not support len"
-	msgNoCap           = "type does not support cap"
-	msgNoIndex         = "type does not support index operation"
+	msgNotLenType   = "type does not support len"
+	msgNotCapType   = "type does not support cap"
+	msgNotIndexType = "type does not support index operation"
+	msgNotFloat64   = "not convertable to float64"
+
 	msgIndexOutOfRange = "index out of range"
-	msgNoFloat64       = "value not convertable to float64"
+
+	msgLessThan           = "not less than"
+	msgLessThanOrEqual    = "not less than or equal to"
+	msgGreaterThan        = "not greater than"
+	msgGreaterThanOrEqual = "not greater than or equal to"
+	msgNotNumericEqual    = "numeric equal"
+	msgNumericEqual       = "not numeric equal"
+
+	msgNotDeepEqual = "deep equal"
+	msgDeepEqual    = "not deep equal"
+
+	msgNotReflectNil = "typed or untyped nil"
+	msgReflectNil    = "neither typed nor untyped nil"
+
+	msgNotRegexpType = "type not matchable by regular expressions"
+	msgMatchRegexp   = "regular expression not matching "
+
+	msgNotErrorType = "type is not error"
+	msgNoError      = "error is not nil"
+	msgError        = "error is nil"
+	msgErrorIsNot   = "error is matching target error"
+	msgErrorIs      = "error is not matching target error"
+
+	msgSchemaMatch = "not matching schema"
 )
 
 // Failure is an error type that aid with consistent formatting of test
@@ -97,31 +122,9 @@ func (f Failure) Is(target error) bool {
 	return match
 }
 
-// PrefixError wraps a (type-formatted) error with a prefix string.
-type PrefixError struct {
-	Key     string
-	Err     error
-	Newline bool
-}
-
 // KeyError returns an error prefixed by a key.
-func KeyError(key interface{}, err error) PrefixError {
-	return PrefixError{
-		Key: fmt.Sprintf("key %#v", key),
-		Err: err,
-	}
-}
-
-func (err PrefixError) Error() string {
-	if err.Newline {
-		return fmt.Sprintf("%s:\n%s", err.Key, err.Err)
-	}
-	return fmt.Sprintf("%s: %s", err.Key, err.Err)
-}
-
-// Unwrap returns the wrapped error.
-func (err PrefixError) Unwrap() error {
-	return err.Err
+func KeyError(key interface{}, err error) error {
+	return fmt.Errorf("key %#v: %w", key, err)
 }
 
 // Errors combine the output of multiple errors on separate lines.
@@ -129,9 +132,16 @@ type Errors []error
 
 func (errs Errors) Error() string {
 	var buf bytes.Buffer
+	var s string
 
+	fmt.Fprintf(&buf, "%d issue(s)\n", len(errs))
 	for i, err := range errs {
-		fmt.Fprintf(&buf, "#%d: %s\n", i, err)
+		if err == nil {
+			s = " (nil)"
+		} else {
+			s = "\n" + indentString(err.Error())
+		}
+		fmt.Fprintf(&buf, "issue #%d:%s\n", i, s)
 	}
 
 	return buf.String()

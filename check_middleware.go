@@ -1,10 +1,16 @@
 package subtest
 
+import "fmt"
+
 // OnFloat64 returns a check function where the test value is converted to
 // float64 before it's passed to c.
 func OnFloat64(c Check) CheckFunc {
 	return func(got interface{}) error {
-		return c.Check(Float64(got))
+		err := c.Check(Float64(got))
+		if err != nil {
+			return fmt.Errorf("on float64: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -13,8 +19,11 @@ func OnFloat64(c Check) CheckFunc {
 // channels and strings.
 func OnLen(c Check) CheckFunc {
 	return func(got interface{}) error {
-		vf := Len(got)
-		return c.Check(vf)
+		err := c.Check(Len(got))
+		if err != nil {
+			return fmt.Errorf("on len: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -23,8 +32,11 @@ func OnLen(c Check) CheckFunc {
 // channels.
 func OnCap(c Check) CheckFunc {
 	return func(got interface{}) error {
-		vf := Cap(got)
-		return cf.Check(vf)
+		err := c.Check(Cap(got))
+		if err != nil {
+			return fmt.Errorf("on cap: %w", err)
+		}
+		return nil
 	}
 }
 
@@ -33,6 +45,10 @@ func OnCap(c Check) CheckFunc {
 func OnIndex(i int, c Check) CheckFunc {
 	return func(got interface{}) error {
 		vf := Index(got, i)
-		return c.Check(vf)
+		err := c.Check(vf)
+		if err != nil {
+			return fmt.Errorf("on index %d: %w", i, err)
+		}
+		return nil
 	}
 }
