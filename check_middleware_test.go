@@ -28,7 +28,7 @@ func TestOnFloat64(t *testing.T) {
 		})
 		t.Run(`when cheking against string("invalid")`, func(t *testing.T) {
 			vf := subtest.Value(cf("invalid"))
-			expect := subtest.FailGot("value not convertable to float64", "invalid")
+			expect := subtest.FailGot("not convertable to float64", "invalid")
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})
 	})
@@ -48,7 +48,7 @@ func TestOnLen(t *testing.T) {
 		})
 		t.Run(`when cheking against string("42")`, func(t *testing.T) {
 			vf := subtest.Value(cf("42"))
-			expect := subtest.FailExpect("values are not deep equal", 2, 3)
+			expect := subtest.FailExpect("not deep equal", 2, 3)
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})
 	})
@@ -63,7 +63,7 @@ func TestOnCap(t *testing.T) {
 		})
 		t.Run("when cheking against make([]int,3,4)", func(t *testing.T) {
 			vf := subtest.Value(cf(make([]int, 3, 4)))
-			expect := subtest.FailExpect("values are not deep equal", 4, 3)
+			expect := subtest.FailExpect("not deep equal", 4, 3)
 			t.Run("then it should pass", vf.ErrorIs(expect))
 		})
 		t.Run(`when cheking against int64(42)`, func(t *testing.T) {

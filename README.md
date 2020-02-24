@@ -125,7 +125,7 @@ func TestFooExplicit(t *testing.T) {
 }
 ```
 
-If we where going to do this every time, we would grow tiered. Therefore there is several short-hand methods defined on the Check and ValueFunc instances that makes things easier. The least verbose variant we can write of the test bellow, is as follows:
+If we where going to do this every time, we would grow weary. Therefore there is several short-hand methods defined on the Check and ValueFunc instances that makes things easier. The least verbose variant we can write of the test above is as follows:
 
 ```go
 func TestFoo(t *testing.T) {
@@ -142,14 +142,20 @@ It is possible to validate more than just equality with subtest. The `subtest.Sc
 
 ```go
 func TestJSONMap(t *testing.T) {
-    v := `{"foo": "bar", "baz": "foobar"}`
+    v := `{"foo": "bar", "bar": "foobar", "baz": ["foo", "bar", "baz"]}`
 
     expect := subtest.Schema{
         Fields: subtest.Fields{
             "foo": subjson.DecodesTo("bar")
-            "baz": subjson.OnLen(subtest.AllOf{
+            "bar": subjson.OnLen(subtest.AllOf{
                 subtest.GreaterThan(3),
                 subtest.LessThan(8),
+            }),
+            "baz": subjson.OnSlice(subtest.AllOf{
+                subtest.OnLen(subtest.DeepEqual(3)),
+                subtest.OnIndex(0, subjson.DecodesTo("foo"),
+                subtest.OnIndex(1, subtest.MatchPattern(`"^b??$"`), // regex match against raw JSON
+                subtest.OnIndex(2, subtest.DeepEqual(json.RawMessage(`"baz"`)), // raw JSON equals
             }),
         },
     }
@@ -226,7 +232,7 @@ Example output from an `exaples/gwt`:
     --- FAIL: TestFoo/Given_nothing_is_registered (0.00s)
         --- FAIL: TestFoo/Given_nothing_is_registered/When_calling_reg.Foo (0.00s)
             --- FAIL: TestFoo/Given_nothing_is_registered/When_calling_reg.Foo/Then_the_result_should_hold_a_zero-value (0.00s)
-                pkg_test.go:19: values are not deep equal
+                pkg_test.go:19: not deep equal
                     got: string
                         "oops"
                     want: string

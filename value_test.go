@@ -14,7 +14,7 @@ func TestFloat64(t *testing.T) {
 		v, err := vf()
 		t.Run("Then the value should be nil", subtest.Value(v).DeepEqual(nil))
 		t.Run("Then we should get the correct error", subtest.Value(err).ErrorIs(
-			subtest.FailGot("value not convertable to float64", string("invalid")),
+			subtest.FailGot("not convertable to float64", string("invalid")),
 		))
 	})
 

@@ -125,11 +125,7 @@ func (s Schema) checkMap(got interface{}) error {
 	}
 
 	if len(errs) > 0 {
-		return PrefixError{
-			Key:     "value not matching schema",
-			Err:     errs,
-			Newline: true,
-		}
+		return fmt.Errorf("%s: %w", msgSchemaMatch, errs)
 	}
 	return nil
 }
