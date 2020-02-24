@@ -8,9 +8,11 @@ import (
 )
 
 const (
-	msgNoLen     = "type does not support len"
-	msgNoCap     = "type does not support cap"
-	msgNoFloat64 = "value not convertable to float64"
+	msgNoLen           = "type does not support len"
+	msgNoCap           = "type does not support cap"
+	msgNoIndex         = "type does not support index operation"
+	msgIndexOutOfRange = "index out of range"
+	msgNoFloat64       = "value not convertable to float64"
 )
 
 // Failure is an error type that aid with consistent formatting of test

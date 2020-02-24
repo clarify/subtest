@@ -1,6 +1,7 @@
 package subtest
 
 import (
+	"errors"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -69,8 +70,25 @@ func asCap(v interface{}) (c int, ok bool) {
 	return
 }
 
-// Float64 returns a new ValueFunc that parses v into a float64. Valid input
-// types are any numeric kinds  or string kinds.
+// Index returns a new ValueFunc for the value at index v[i]. Accepts input of
+// type array, slice and string.
+func Index(v interface{}, i int) ValueFunc {
+	return func() (interface{}, error) {
+		rv := reflect.ValueOf(v)
+		switch rv.Kind() {
+		case reflect.Array, reflect.Slice, reflect.String:
+			if rv.Len() <= i {
+				return nil, errors.New(msgIndexOutOfRange)
+			}
+			return rv.Index(i).Interface(), nil
+		default:
+			return nil, FailGot(msgNoIndex, v)
+		}
+	}
+}
+
+// Float64 returns a new ValueFunc that parses v into a float64. Accepts numeric
+// kinds and string kinds as input.
 func Float64(v interface{}) ValueFunc {
 	return func() (interface{}, error) {
 		f, ok := asFloat64(v)
