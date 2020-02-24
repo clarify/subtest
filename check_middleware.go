@@ -9,7 +9,7 @@ func OnFloat64(c Check) CheckFunc {
 }
 
 // OnLen returns a check function where the length of the test value is
-// extracted and passed to cf. Accepted input types are arrays, slices, maps,
+// extracted and passed to c. Accepted input types are arrays, slices, maps,
 // channels and strings.
 func OnLen(c Check) CheckFunc {
 	return func(got interface{}) error {
@@ -19,9 +19,9 @@ func OnLen(c Check) CheckFunc {
 }
 
 // OnCap returns a check function where the capacity of the test value is
-// extracted and passed to cf. Accepted input types are arrays, slices and
+// extracted and passed to c. Accepted input types are arrays, slices and
 // channels.
-func OnCap(cf Check) CheckFunc {
+func OnCap(c Check) CheckFunc {
 	return func(got interface{}) error {
 		vf := Cap(got)
 		return cf.Check(vf)

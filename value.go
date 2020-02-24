@@ -152,9 +152,9 @@ func (vf ValueFunc) GreaterThanOrEqual(v float64) func(t *testing.T) {
 	return vf.Test(GreaterThanOrEqual(v))
 }
 
-// NumericNotEqual is equivalent to vf.Test(NumericNotEqual(v)).
-func (vf ValueFunc) NumericNotEqual(v float64) func(t *testing.T) {
-	return vf.Test(NumericNotEqual(v))
+// NotNumericEqual is equivalent to vf.Test(NotNumericEqual(v)).
+func (vf ValueFunc) NotNumericEqual(v float64) func(t *testing.T) {
+	return vf.Test(NotNumericEqual(v))
 }
 
 // NumericEqual is equivalent to vf.Test(NumericEqual(v)).
@@ -187,9 +187,9 @@ func (vf ValueFunc) MatchRegexp(r *regexp.Regexp) func(t *testing.T) {
 	return vf.Test(MatchRegexp(r))
 }
 
-// MatchRegexpPattern is equivalent to vf.Test(s.MatchRegexpPattern(pattern)).
-func (vf ValueFunc) MatchRegexpPattern(pattern string) func(t *testing.T) {
-	return vf.Test(MatchRegexpPattern(pattern))
+// MatchPattern is equivalent to vf.Test(s.MatchPattern(pattern)).
+func (vf ValueFunc) MatchPattern(pattern string) func(t *testing.T) {
+	return vf.Test(MatchPattern(pattern))
 }
 
 // NoError is equivalent to vf.Test(NoError(v)).

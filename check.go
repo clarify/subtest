@@ -144,9 +144,9 @@ func GreaterThanOrEqual(expect float64) CheckFunc {
 	}
 }
 
-// NumericNotEqual returns a check function that fails when the test value is
+// NotNumericEqual returns a check function that fails when the test value is
 // a numeric value equal to expect.
-func NumericNotEqual(expect float64) CheckFunc {
+func NotNumericEqual(expect float64) CheckFunc {
 	return func(got interface{}) error {
 		f, ok := asFloat64(got)
 		if !ok {
@@ -230,8 +230,8 @@ func ReflectNil() CheckFunc {
 }
 
 // MatchRegexp returns a check function that fails if the test value does not
-// match r. Allowed test value types are string, []byte, json.RawMessage and
-// io.RuneReader.
+// match r. Allowed test value types are string, []byte, json.RawMessage,
+// io.RuneReader and error.
 func MatchRegexp(r *regexp.Regexp) CheckFunc {
 	return func(got interface{}) error {
 		var match bool
@@ -244,6 +244,8 @@ func MatchRegexp(r *regexp.Regexp) CheckFunc {
 			match = r.Match([]byte(gt))
 		case io.RuneReader:
 			match = r.MatchReader(gt)
+		case error:
+			match = gt != nil && r.MatchString(gt.Error())
 		default:
 			return FailGot(prefixNotRegexpType, got)
 		}
@@ -254,9 +256,8 @@ func MatchRegexp(r *regexp.Regexp) CheckFunc {
 	}
 }
 
-// MatchRegexpPattern is a short-hand for
-// MatchRegexp(regexp.MustCompile(pattern)).
-func MatchRegexpPattern(pattern string) CheckFunc {
+// MatchPattern is a short-hand for MatchRegexp(regexp.MustCompile(pattern)).
+func MatchPattern(pattern string) CheckFunc {
 	return MatchRegexp(regexp.MustCompile(pattern))
 }
 
