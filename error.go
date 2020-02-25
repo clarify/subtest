@@ -8,10 +8,11 @@ import (
 )
 
 const (
-	msgNotLenType   = "type does not support len"
-	msgNotCapType   = "type does not support cap"
-	msgNotIndexType = "type does not support index operation"
-	msgNotFloat64   = "not convertable to float64"
+	msgNotLenType      = "type does not support len"
+	msgNotCapType      = "type does not support cap"
+	msgNotIndexType    = "type does not support index operation"
+	msgNotFloat64      = "not convertable to float64"
+	msgNotSliceArrType = "type is not slice or array"
 
 	msgIndexOutOfRange = "index out of range"
 
@@ -30,6 +31,8 @@ const (
 
 	msgNotRegexpType = "type not matchable by regular expressions"
 	msgMatchRegexp   = "regular expression not matching "
+
+	msgContainsMatch = "does not match any elements"
 
 	msgNotErrorType = "type is not error"
 	msgNoError      = "error is not nil"

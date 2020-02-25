@@ -407,3 +407,153 @@ func TestRegexp(t *testing.T) {
 		})
 	})
 }
+
+func TestContainsMatch(t *testing.T) {
+	t.Run("given a slice []string{a, b}", func(t *testing.T) {
+		v := []string{"a", "b"}
+		t.Run("when checking against a", func(t *testing.T) {
+			t.Run("then it should match", // equal value.
+				subtest.Value(v).ContainsMatch(subtest.DeepEqual("a")),
+			)
+		})
+		t.Run("when checking against b", func(t *testing.T) {
+			t.Run("then it should match", // equal value.
+				subtest.Value(v).ContainsMatch(subtest.DeepEqual("b")),
+			)
+		})
+		t.Run("when checking against c", func(t *testing.T) {
+			cf := subtest.ContainsMatch(
+				subtest.DeepEqual("c"),
+			)
+			vf := subtest.Value(cf(v))
+			expect := subtest.FailExpect("does not match any elements", v, "c")
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when checking against a and 42", func(t *testing.T) {
+			cf := subtest.AllOff{
+				subtest.ContainsMatch(subtest.DeepEqual("a")),
+				subtest.ContainsMatch(subtest.DeepEqual(42)),
+			}
+			err := cf.Check(subtest.Value(v))
+			expect := subtest.Errors{
+				subtest.FailExpect("does not match any elements", v, 42),
+			}
+			t.Run("then it should fail", subtest.Value(err).ErrorIs(expect))
+		})
+	})
+
+	t.Run("given a slice []interface{}{true, 1, b}", func(t *testing.T) {
+		v := []interface{}{true, 1, "b"}
+		t.Run("when checking against 1", func(t *testing.T) {
+			t.Run("then it should match",
+				subtest.Value(v).ContainsMatch(subtest.DeepEqual(1)),
+			)
+		})
+		t.Run("when checking against true", func(t *testing.T) {
+			t.Run("then it should match",
+				subtest.Value(v).ContainsMatch(subtest.DeepEqual(true)),
+			)
+		})
+		t.Run("when checking against > 0", func(t *testing.T) {
+			t.Run("then it should match",
+				subtest.Value(v).ContainsMatch(subtest.GreaterThan(0)),
+			)
+		})
+		t.Run("when checking against true and >= 42", func(t *testing.T) {
+			cf := subtest.AllOff{
+				subtest.ContainsMatch(subtest.DeepEqual(true)),
+				subtest.ContainsMatch(subtest.GreaterThanOrEqual(42)),
+			}
+			err := cf.Check(subtest.Value(v))
+			expect := subtest.Errors{
+				subtest.FailGot("does not match any elements", v),
+			}
+			t.Run("then it should fail", subtest.Value(err).ErrorIs(expect))
+		})
+	})
+
+	t.Run("given a slice of complex types", func(t *testing.T) {
+		type T struct {
+			A string
+			B map[string]string
+		}
+		v := []interface{}{
+			&T{A: "a", B: map[string]string{"C": "D"}},
+			&T{A: "b", B: map[string]string{"E": "F"}},
+		}
+
+		t.Run("when checking against an instance in the slice", func(t *testing.T) {
+			t.Run("then it should match",
+				subtest.Value(v).ContainsMatch(subtest.DeepEqual(&T{A: "a", B: map[string]string{"C": "D"}})),
+			)
+		})
+		t.Run("when checking against an instance not in the slice", func(t *testing.T) {
+			cf := subtest.ContainsMatch(
+				subtest.DeepEqual(&T{A: "c", B: map[string]string{"C": "D"}}),
+			)
+			vf := subtest.Value(cf(v))
+			expect := subtest.FailExpect("does not match any elements", v, &T{A: "c", B: map[string]string{"C": "D"}})
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+}
+
+func TestContains(t *testing.T) {
+	t.Run("given a slice []string{a, b}", func(t *testing.T) {
+		v := []string{"a", "b"}
+		t.Run("when checking against a", func(t *testing.T) {
+			t.Run("then it should match", // equal value.
+				subtest.Value(v).Contains("a"),
+			)
+		})
+		t.Run("when checking against b", func(t *testing.T) {
+			t.Run("then it should match", // equal value.
+				subtest.Value(v).Contains("b"),
+			)
+		})
+		t.Run("when checking against c", func(t *testing.T) {
+			cf := subtest.Contains("c")
+			vf := subtest.Value(cf(v))
+			expect := subtest.FailExpect("does not match any elements", v, "c")
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when checking against a and 42", func(t *testing.T) {
+			cf := subtest.AllOff{
+				subtest.Contains("a"),
+				subtest.Contains(42),
+			}
+			err := cf.Check(subtest.Value(v))
+			expect := subtest.Errors{
+				subtest.FailExpect("does not match any elements", v, 42),
+			}
+			t.Run("then it should fail", subtest.Value(err).ErrorIs(expect))
+		})
+	})
+
+	t.Run("given a slice []interface{}{true, 1, b}", func(t *testing.T) {
+		v := []interface{}{true, 1, "b"}
+		t.Run("when checking against 1", func(t *testing.T) {
+			t.Run("then it should match",
+				subtest.Value(v).Contains(1),
+			)
+		})
+		t.Run("when checking against true", func(t *testing.T) {
+			t.Run("then it should match",
+				subtest.Value(v).Contains(true),
+			)
+		})
+		t.Run("when checking against true, 42 and 43", func(t *testing.T) {
+			cf := subtest.AllOff{
+				subtest.Contains(true),
+				subtest.Contains(42),
+				subtest.Contains(43),
+			}
+			err := cf.Check(subtest.Value(v))
+			expect := subtest.Errors{
+				subtest.FailExpect("does not match any elements", v, 42),
+				subtest.FailExpect("does not match any elements", v, 43),
+			}
+			t.Run("then it should fail", subtest.Value(err).ErrorIs(expect))
+		})
+	})
+}
