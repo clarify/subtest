@@ -304,3 +304,57 @@ func ErrorIs(target error) CheckFunc {
 		return nil
 	}
 }
+
+// ContainsMatch returns a check function that fails if the test value does not
+// contain the check. Accepts input of type array and slice.
+func ContainsMatch(c Check) CheckFunc {
+	return func(got interface{}) error {
+		rv := reflect.ValueOf(got)
+		switch rv.Kind() {
+		case reflect.Array, reflect.Slice:
+		default:
+			return FailGot(msgNotSliceArrType, got)
+		}
+
+		var subfail Failure
+		for j := 0; j < rv.Len(); j++ {
+			err := c.Check(Index(got, j))
+			switch {
+			case err == nil:
+				return nil
+			case errors.As(err, &subfail):
+			}
+		}
+		fail := FailGot(msgContainsMatch, got)
+		fail.Expect = subfail.Expect // may be empty
+		return fail
+	}
+}
+
+// Contains returns a check function that fails if the test value does not
+// contain the input. Accepts input of type array and slice.
+func Contains(v interface{}) CheckFunc {
+	return ContainsMatch(DeepEqual(v))
+}
+
+func contains(c Check, val interface{}) CheckFunc {
+	return func(got interface{}) error {
+		rv := reflect.ValueOf(got)
+		switch rv.Kind() {
+		case reflect.Array, reflect.Slice:
+		default:
+			return FailGot(msgNotSliceArrType, got)
+		}
+
+		for j := 0; j < rv.Len(); j++ {
+			if c.Check(Index(got, j)) == nil {
+				return nil
+			}
+		}
+
+		if val == nil {
+			return FailGot(msgContainsMatch, got)
+		}
+		return FailExpect(msgContainsMatch, got, val)
+	}
+}
