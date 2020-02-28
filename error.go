@@ -13,6 +13,7 @@ const (
 	msgNotIndexType    = "type does not support index operation"
 	msgNotErrorType    = "type is not error"
 	msgNotSliceArrType = "type is not slice or array"
+	msgNotTimeType     = "type is not time.Time or *time.Time"
 	msgNotFloat64      = "not convertable to float64"
 
 	msgIndexOutOfRange = "index out of range"
@@ -23,6 +24,11 @@ const (
 	msgGreaterThanOrEqual = "not greater than or equal to"
 	msgNotNumericEqual    = "numeric equal"
 	msgNumericEqual       = "not numeric equal"
+
+	msgBefore       = "time not before"
+	msgNotBefore    = "time before"
+	msgTimeEqual    = "times not equal"
+	msgNotTimeEqual = "times equal"
 
 	msgNotDeepEqual = "deep equal"
 	msgDeepEqual    = "not deep equal"
@@ -35,11 +41,10 @@ const (
 
 	msgContainsMatch = "does not match any elements"
 
-	msgNotErrorType = "type is not error"
-	msgNoError      = "error is not nil"
-	msgError        = "error is nil"
-	msgErrorIsNot   = "error is matching target error"
-	msgErrorIs      = "error is not matching target error"
+	msgNoError    = "error is not nil"
+	msgError      = "error is nil"
+	msgErrorIsNot = "error is matching target error"
+	msgErrorIs    = "error is not matching target error"
 
 	msgSchemaMatch = "not matching schema"
 )

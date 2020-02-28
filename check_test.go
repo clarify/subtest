@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/searis/subtest"
 )
@@ -26,8 +27,8 @@ func TestDeepEqual(t *testing.T) {
 		t.Run("when testing against true with different syntax", func(t *testing.T) {
 			v := true
 			vf := subtest.Value(v)
-			t.Run("then <ValueFunc>.<CheckFuncName> should pass", vf.DeepEqual(true))
-			t.Run("the <ValueFunc>.Test(<CheckFunc>) should pass", vf.Test(subtest.DeepEqual(true))) // equivalent
+			t.Run("then <ValueFunc>.<CheckFuncName> should not fail", vf.DeepEqual(true))
+			t.Run("the <ValueFunc>.Test(<CheckFunc>) should not fail", vf.Test(subtest.DeepEqual(true))) // equivalent
 		})
 	})
 
@@ -73,8 +74,8 @@ func TestNotDeepEqual(t *testing.T) {
 		t.Run("when testing against false with different syntax", func(t *testing.T) {
 			v := false
 			vf := subtest.Value(v)
-			t.Run("then <ValueFunc>.<CheckFuncName> should pass", vf.NotDeepEqual(true))
-			t.Run("the <ValueFunc>.Test(<CheckFunc>) should pass", vf.Test(subtest.NotDeepEqual(true))) // equivalent
+			t.Run("then <ValueFunc>.<CheckFuncName> should not fail", vf.NotDeepEqual(true))
+			t.Run("the <ValueFunc>.Test(<CheckFunc>) should not fail", vf.Test(subtest.NotDeepEqual(true))) // equivalent
 
 		})
 	})
@@ -109,11 +110,11 @@ func TestCheckReflectNil(t *testing.T) {
 
 	t.Run("when cheking against untyped nil", func(t *testing.T) {
 		vf := subtest.Value(cf(nil))
-		t.Run("then it should fail", vf.NoError())
+		t.Run("then it should not fail", vf.NoError())
 	})
 	t.Run("when cheking against a nil struct pointer", func(t *testing.T) {
 		vf := subtest.Value(cf((*T)(nil)))
-		t.Run("then it should fail", vf.NoError())
+		t.Run("then it should not fail", vf.NoError())
 	})
 
 	t.Run("when cheking against a non-nil struct pointer", func(t *testing.T) {
@@ -148,7 +149,7 @@ func TestCheckNotReflectNil(t *testing.T) {
 
 	t.Run("when cheking against a non-nil struct pointer", func(t *testing.T) {
 		vf := subtest.Value(cf(&T{}))
-		t.Run("then it should fail", vf.NoError())
+		t.Run("then it should not fail", vf.NoError())
 	})
 
 }
@@ -380,6 +381,217 @@ func TestNotNumericEqual(t *testing.T) {
 		})
 		t.Run("when cheking against 43", func(t *testing.T) {
 			cf := subtest.NotNumericEqual(43)
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+	})
+}
+func TestNotBefore(t *testing.T) {
+	tz := time.FixedZone("Europe/Oslo", 2*3600)
+	t1 := time.Date(1985, 12, 19, 18, 15, 0, 0, tz)
+
+	t.Run("given a string value", func(t *testing.T) {
+		v := "1985-12-19T18:15:00.0+02:00"
+		t.Run("when cheking against any time", func(t *testing.T) {
+			cf := subtest.NotBefore(t1)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "type is not time.Time or *time.Time",
+				Got:    "string\n\t\"1985-12-19T18:15:00.0+02:00\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a time value", func(t *testing.T) {
+		v := t1
+		t.Run("when cheking against an earlier time", func(t *testing.T) {
+			cf := subtest.NotBefore(t1.Add(-time.Second))
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against a later time", func(t *testing.T) {
+			cf := subtest.NotBefore(t1.Add(time.Second))
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "time before 1985-12-19 18:15:01 +0200 Europe/Oslo",
+				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.NotBefore(t1.UTC())
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+	})
+	t.Run("given a time pointer value", func(t *testing.T) {
+		v := &t1
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.NotBefore(t1.UTC())
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+	})
+}
+
+func TestBefore(t *testing.T) {
+	tz := time.FixedZone("Europe/Oslo", 2*3600)
+	t1 := time.Date(1985, 12, 19, 18, 15, 0, 0, tz)
+
+	t.Run("given a string value", func(t *testing.T) {
+		v := "1985-12-19T18:15:00.0+02:00"
+		t.Run("when cheking against any time", func(t *testing.T) {
+			cf := subtest.Before(t1)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "type is not time.Time or *time.Time",
+				Got:    "string\n\t\"1985-12-19T18:15:00.0+02:00\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a time value", func(t *testing.T) {
+		v := t1
+		t.Run("when cheking against an earlier time", func(t *testing.T) {
+			cf := subtest.Before(t1.Add(-time.Second))
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "time not before 1985-12-19 18:14:59 +0200 Europe/Oslo",
+				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against a later time", func(t *testing.T) {
+			cf := subtest.Before(t1.Add(time.Second))
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.Before(t1.UTC())
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "time not before 1985-12-19 16:15:00 +0000 UTC",
+				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a time pointer value", func(t *testing.T) {
+		v := &t1
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.Before(t1.UTC())
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "time not before 1985-12-19 16:15:00 +0000 UTC",
+				Got:    "*time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+}
+
+func TestNotTimeEqual(t *testing.T) {
+	tz := time.FixedZone("Europe/Oslo", 2*3600)
+	t1 := time.Date(1985, 12, 19, 18, 15, 0, 0, tz)
+
+	t.Run("given a string value", func(t *testing.T) {
+		v := "1985-12-19T18:15:00.0+01:00"
+		t.Run("when cheking against any time", func(t *testing.T) {
+			cf := subtest.TimeEqual(t1)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "type is not time.Time or *time.Time",
+				Got:    "string\n\t\"1985-12-19T18:15:00.0+01:00\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a time value", func(t *testing.T) {
+		v := t1
+		t.Run("when cheking against an earlier time", func(t *testing.T) {
+			cf := subtest.NotTimeEqual(t1.Add(-time.Second))
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against a later time", func(t *testing.T) {
+			cf := subtest.NotTimeEqual(t1.Add(time.Second))
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.NotTimeEqual(t1.UTC())
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "times not equal",
+				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+				Reject: "time.Time\n\t\"1985-12-19 16:15:00 +0000 UTC\"",
+			}
+			t.Run("then it should not fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a time pointer value", func(t *testing.T) {
+		v := &t1
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.NotTimeEqual(t1.UTC())
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "times not equal",
+				Got:    "*time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+				Reject: "time.Time\n\t\"1985-12-19 16:15:00 +0000 UTC\"",
+			}
+			t.Run("then it should not fail", vf.ErrorIs(expect))
+		})
+	})
+}
+
+func TestTimeEqual(t *testing.T) {
+	tz := time.FixedZone("Europe/Oslo", 2*3600)
+	t1 := time.Date(1985, 12, 19, 18, 15, 0, 0, tz)
+
+	t.Run("given a string value", func(t *testing.T) {
+		v := "1985-12-19T18:15:00.0+01:00"
+		t.Run("when cheking against any time", func(t *testing.T) {
+			cf := subtest.TimeEqual(t1)
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "type is not time.Time or *time.Time",
+				Got:    "string\n\t\"1985-12-19T18:15:00.0+01:00\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+	})
+	t.Run("given a time value", func(t *testing.T) {
+		v := t1
+		t.Run("when cheking against an earlier time", func(t *testing.T) {
+			cf := subtest.TimeEqual(t1.Add(-time.Microsecond))
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "times not equal",
+				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+				Expect: "time.Time\n\t\"1985-12-19 18:14:59.999999 +0200 Europe/Oslo\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against a later time", func(t *testing.T) {
+			cf := subtest.TimeEqual(t1.Add(time.Microsecond))
+			vf := subtest.Value(cf(v))
+			expect := subtest.Failure{
+				Prefix: "times not equal",
+				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
+				Expect: "time.Time\n\t\"1985-12-19 18:15:00.000001 +0200 Europe/Oslo\"",
+			}
+			t.Run("then it should fail", vf.ErrorIs(expect))
+		})
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.TimeEqual(t1.UTC())
+			vf := subtest.Value(cf(v))
+			t.Run("then it should not fail", vf.NoError())
+		})
+	})
+	t.Run("given a time pointer value", func(t *testing.T) {
+		v := &t1
+		t.Run("when cheking against a semantically equivalent time", func(t *testing.T) {
+			cf := subtest.TimeEqual(t1.UTC())
 			vf := subtest.Value(cf(v))
 			t.Run("then it should not fail", vf.NoError())
 		})

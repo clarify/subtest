@@ -78,6 +78,18 @@ func OnMap(c subtest.Check) subtest.CheckFunc {
 	}
 }
 
+// OnTime returns a check function where the test value is decoded into a
+// time.Time value.
+func OnTime(c subtest.Check) subtest.CheckFunc {
+	return func(got interface{}) error {
+		err := c.Check(Time(got))
+		if err != nil {
+			return fmt.Errorf("on JSON decoded time: %w", err)
+		}
+		return nil
+	}
+}
+
 // OnInterface returns a check function where the test value is decoded into a
 // interface{} value.
 func OnInterface(c subtest.Check) subtest.CheckFunc {

@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"testing"
+	"time"
 )
 
 // Test returns a test that fails fatally with the error f returned by f.
@@ -160,6 +161,26 @@ func (vf ValueFunc) NotNumericEqual(v float64) func(t *testing.T) {
 // NumericEqual is equivalent to vf.Test(NumericEqual(v)).
 func (vf ValueFunc) NumericEqual(v float64) func(t *testing.T) {
 	return vf.Test(NumericEqual(v))
+}
+
+// NotBefore is equivalent to vf.Test(NotBefore(v)).
+func (vf ValueFunc) NotBefore(v time.Time) func(t *testing.T) {
+	return vf.Test(NotBefore(v))
+}
+
+// Before is equivalent to vf.Test(Before(v)).
+func (vf ValueFunc) Before(v time.Time) func(t *testing.T) {
+	return vf.Test(Before(v))
+}
+
+// NotTimeEqual is equivalent to vf.Test(NotTimeEqual(v)).
+func (vf ValueFunc) NotTimeEqual(v time.Time) func(t *testing.T) {
+	return vf.Test(NotTimeEqual(v))
+}
+
+// TimeEqual is equivalent to vf.Test(TimeEqual(v)).
+func (vf ValueFunc) TimeEqual(v time.Time) func(t *testing.T) {
+	return vf.Test(TimeEqual(v))
 }
 
 // NotDeepEqual is equivalent to vf.Test(NotDeepEqual(v)).

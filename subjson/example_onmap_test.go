@@ -14,13 +14,13 @@ func ExampleMap_failingTest() {
 		"foo": json.RawMessage(`"bar"`),
 		"bar": json.RawMessage(`"foobar"`),
 	}))
-	// FIXME: t.Helper issue causes return of value.go:130 instead of this file.
+	// FIXME: t.Helper issue causes return of value.go:131 instead of this file.
 	// Could be related to https://github.com/golang/go/issues/23249.
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
 	// --- FAIL: ParentTest/v_match_cf (0.00s)
-	//     value.go:130: not deep equal
+	//     value.go:131: not deep equal
 	//         got: map[string]json.RawMessage
 	//             map[bar:[34 98 97 122 34] foo:[34 98 97 114 34]]
 	//         want: map[string]json.RawMessage
@@ -37,13 +37,13 @@ func ExampleOnMap_failingTest() {
 	t.Run("v match cf", subtest.Value(v).Test(
 		subjson.OnMap(cf),
 	))
-	// FIXME: t.Helper issue causes return of value.go:130 instead of this file.
+	// FIXME: t.Helper issue causes return of value.go:131 instead of this file.
 	// Could be related to https://github.com/golang/go/issues/23249.
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
 	// --- FAIL: ParentTest/v_match_cf (0.00s)
-	//     value.go:130: on JSON decoded map: not deep equal
+	//     value.go:131: on JSON decoded map: not deep equal
 	//         got: map[string]json.RawMessage
 	//             map[bar:[34 98 97 122 34] foo:[34 98 97 114 34]]
 	//         want: map[string]json.RawMessage
@@ -60,13 +60,13 @@ func ExampleMap_failingSchemaTest() {
 	}
 
 	t.Run("v match cf", subjson.Map(v).Test(c))
-	// FIXME: t.Helper issue causes return of value.go:130 instead of this file.
+	// FIXME: t.Helper issue causes return of value.go:131 instead of this file.
 	// Could be related to https://github.com/golang/go/issues/23249.
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
 	// --- FAIL: ParentTest/v_match_cf (0.00s)
-	//     value.go:130: not matching schema: 1 issue(s)
+	//     value.go:131: not matching schema: 1 issue(s)
 	//         issue #0:
 	//             key "bar": not deep equal
 	//             got: json.RawMessage
@@ -84,13 +84,13 @@ func ExampleOnMap_failingSchemaTest() {
 	}
 
 	t.Run("v match cf", subtest.Value(v).Test(subjson.OnMap(c)))
-	// FIXME: t.Helper issue causes return of value.go:130 instead of this file.
+	// FIXME: t.Helper issue causes return of value.go:131 instead of this file.
 	// Could be related to https://github.com/golang/go/issues/23249.
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
 	// --- FAIL: ParentTest/v_match_cf (0.00s)
-	//     value.go:130: on JSON decoded map: not matching schema: 1 issue(s)
+	//     value.go:131: on JSON decoded map: not matching schema: 1 issue(s)
 	//         issue #0:
 	//             key "bar": not deep equal
 	//             got: json.RawMessage

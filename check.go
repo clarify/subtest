@@ -7,6 +7,7 @@ import (
 	"io"
 	"reflect"
 	"regexp"
+	"time"
 )
 
 // Check describes the interface for a check.
@@ -162,6 +163,80 @@ func NumericEqual(expect float64) CheckFunc {
 
 		return nil
 	}
+}
+
+// NotBefore returns a check function that fails when the test value is before
+// expect. Accepts type time.Time and *time.Time.
+func NotBefore(expect time.Time) CheckFunc {
+	return func(got interface{}) error {
+		t, ok := asTime(got)
+		if !ok {
+			return FailGot(msgNotTimeType, got)
+		}
+		if t.Before(expect) {
+			msg := fmt.Sprintf("%s %v", msgNotBefore, expect)
+			return FailGot(msg, got)
+		}
+		return nil
+	}
+}
+
+// Before returns a check function that fails when the test value is not before
+// expect. Accepts type time.Time and *time.Time.
+func Before(expect time.Time) CheckFunc {
+	return func(got interface{}) error {
+		t, ok := asTime(got)
+		if !ok {
+			return FailGot(msgNotTimeType, got)
+		}
+		if !t.Before(expect) {
+			msg := fmt.Sprintf("%s %v", msgBefore, expect)
+			return FailGot(msg, got)
+		}
+		return nil
+	}
+}
+
+// NotTimeEqual returns a check function that fails when the test value is a
+// time semantically equal to expect. Accepts type time.Time and *time.Time.
+func NotTimeEqual(expect time.Time) CheckFunc {
+	return func(got interface{}) error {
+		t, ok := asTime(got)
+		if !ok {
+			return FailGot(msgNotTimeType, got)
+		}
+		if t.Equal(expect) {
+			return FailReject(msgTimeEqual, got, expect)
+		}
+		return nil
+	}
+}
+
+// TimeEqual returns a check function that fails when the test value is not a
+// time semantically equal to expect. Accepts type time.Time and *time.Time.
+func TimeEqual(expect time.Time) CheckFunc {
+	return func(got interface{}) error {
+		t, ok := asTime(got)
+		if !ok {
+			return FailGot(msgNotTimeType, got)
+		}
+		if !t.Equal(expect) {
+			return FailExpect(msgTimeEqual, got, expect)
+		}
+		return nil
+	}
+}
+
+func asTime(got interface{}) (time.Time, bool) {
+	switch gt := got.(type) {
+	case time.Time:
+		return gt, true
+	case *time.Time:
+		if gt != nil {
+			return *gt, true
+		}
+	}
+	return time.Time{}, false
 }
 
 // NotDeepEqual returns a check function that fails when the test value deep
