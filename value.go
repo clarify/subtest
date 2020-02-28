@@ -213,11 +213,6 @@ func (vf ValueFunc) ErrorIs(target error) func(t *testing.T) {
 	return vf.Test(ErrorIs(target))
 }
 
-// TestField is equivalent to vf.Test(Schema{Fields: fields}).
-func (vf ValueFunc) TestField(fields Fields) func(t *testing.T) {
-	return vf.Test(Schema{Fields: fields})
-}
-
 // ContainsMatch is equivalent to vf.Test(ContainsMatch{c}).
 func (vf ValueFunc) ContainsMatch(c Check) func(t *testing.T) {
 	return vf.Test(ContainsMatch(c))
