@@ -3,6 +3,7 @@ package subjson_test
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/searis/subtest"
 	"github.com/searis/subtest/internal/testmock"
@@ -37,6 +38,27 @@ func ExampleOnString() {
 
 	t.Run("v match cf", subtest.Value(v).Test(
 		subjson.OnString(cf),
+	))
+	// Output:
+	// === RUN   ParentTest/v_match_cf
+	// --- PASS: ParentTest/v_match_cf (0.00s)
+}
+
+func ExampleTime() {
+	const v = `"1985-12-19T18:15:00.0+01:00"`
+	expect := time.Date(1985, 12, 19, 17, 15, 0, 0, time.UTC)
+	t.Run("v match cf", subjson.Time(v).TimeEqual(expect))
+	// Output:
+	// === RUN   ParentTest/v_match_cf
+	// --- PASS: ParentTest/v_match_cf (0.00s)
+}
+
+func ExampleOnTime() {
+	const v = `"1985-12-19T18:15:00.0+01:00"`
+	cf := subtest.TimeEqual(time.Date(1985, 12, 19, 17, 15, 0, 0, time.UTC))
+
+	t.Run("v match cf", subtest.Value(v).Test(
+		subjson.OnTime(cf),
 	))
 	// Output:
 	// === RUN   ParentTest/v_match_cf

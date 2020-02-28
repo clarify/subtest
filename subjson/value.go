@@ -2,18 +2,10 @@ package subjson
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/searis/subtest"
 )
-
-// Interface returns a ValueFunc that decodes v into an interface{} value.
-func Interface(v interface{}) subtest.ValueFunc {
-	return func() (interface{}, error) {
-		var t interface{}
-		err := unmarshalJSON(v, &t)
-		return t, err
-	}
-}
 
 // String returns a ValueFunc that decodes v into an string value.
 func String(v interface{}) subtest.ValueFunc {
@@ -64,6 +56,24 @@ func Slice(v interface{}) subtest.ValueFunc {
 func Map(v interface{}) subtest.ValueFunc {
 	return func() (interface{}, error) {
 		var t map[string]json.RawMessage
+		err := unmarshalJSON(v, &t)
+		return t, err
+	}
+}
+
+// Time returns a ValueFunc that decodes v into a time.Time value.
+func Time(v interface{}) subtest.ValueFunc {
+	return func() (interface{}, error) {
+		var t time.Time
+		err := unmarshalJSON(v, &t)
+		return t, err
+	}
+}
+
+// Interface returns a ValueFunc that decodes v into an interface{} value.
+func Interface(v interface{}) subtest.ValueFunc {
+	return func() (interface{}, error) {
+		var t interface{}
 		err := unmarshalJSON(v, &t)
 		return t, err
 	}
