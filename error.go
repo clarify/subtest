@@ -11,8 +11,9 @@ const (
 	msgNotLenType      = "type does not support len"
 	msgNotCapType      = "type does not support cap"
 	msgNotIndexType    = "type does not support index operation"
-	msgNotFloat64      = "not convertable to float64"
+	msgNotErrorType    = "type is not error"
 	msgNotSliceArrType = "type is not slice or array"
+	msgNotFloat64      = "not convertable to float64"
 
 	msgIndexOutOfRange = "index out of range"
 
