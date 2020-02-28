@@ -37,10 +37,10 @@ func TestSchema_map(t *testing.T) {
 			subtest.Value(map[int]string{1: "", 2: "", 3: ""}).Test(c),
 		)
 		t.Run("then it should match a map[int]struct{} value with all keys",
-			subtest.Value(map[int]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}}).Test(c),
+			subtest.Value(map[int]struct{}{1: {}, 2: {}, 3: {}}).Test(c),
 		)
 		t.Run("then it should match a map[interface{}]struct{} value with all keys",
-			subtest.Value(map[interface{}]struct{}{1: struct{}{}, 2: struct{}{}, 3: struct{}{}}).Test(c),
+			subtest.Value(map[interface{}]struct{}{1: {}, 2: {}, 3: {}}).Test(c),
 		)
 		t.Run("then it should match a map with additional fields",
 			subtest.Value(map[int]string{1: "", 2: "", 3: "", 4: ""}).Test(c),
