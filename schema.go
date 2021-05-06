@@ -84,7 +84,7 @@ func (s Schema) checkMap(got interface{}) error {
 		vf = Value(rv.MapIndex(rk).Interface())
 
 		if s.Fields != nil {
-			check, _ = s.Fields[k]
+			check = s.Fields[k]
 		}
 		if check == nil {
 			check = s.AdditionalFields
