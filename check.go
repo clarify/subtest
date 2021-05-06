@@ -206,7 +206,7 @@ func NotTimeEqual(expect time.Time) CheckFunc {
 			return FailGot(msgNotTimeType, got)
 		}
 		if t.Equal(expect) {
-			return FailReject(msgTimeEqual, got, expect)
+			return FailReject(msgNotTimeEqual, got, expect)
 		}
 		return nil
 	}

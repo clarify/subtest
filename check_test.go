@@ -522,7 +522,7 @@ func TestNotTimeEqual(t *testing.T) {
 			cf := subtest.NotTimeEqual(t1.UTC())
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "times not equal",
+				Prefix: "times equal",
 				Got:    "time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
 				Reject: "time.Time\n\t\"1985-12-19 16:15:00 +0000 UTC\"",
 			}
@@ -535,7 +535,7 @@ func TestNotTimeEqual(t *testing.T) {
 			cf := subtest.NotTimeEqual(t1.UTC())
 			vf := subtest.Value(cf(v))
 			expect := subtest.Failure{
-				Prefix: "times not equal",
+				Prefix: "times equal",
 				Got:    "*time.Time\n\t\"1985-12-19 18:15:00 +0200 Europe/Oslo\"",
 				Reject: "time.Time\n\t\"1985-12-19 16:15:00 +0000 UTC\"",
 			}
