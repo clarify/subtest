@@ -7,8 +7,16 @@ import (
 	"strings"
 )
 
-// Fields provides a map of check functions.
+// Fields allow validating each value in a map against a particular check.
 type Fields map[interface{}]Check
+
+// Check validates vf against m, expecting vf to return a map.
+func (m Fields) Check(vf ValueFunc) error {
+	s := Schema{
+		Fields: m,
+	}
+	return s.Check(vf)
+}
 
 // OrderedKeys returns all keys in m in alphanumerical order.
 func (m Fields) OrderedKeys() []interface{} {
@@ -24,9 +32,10 @@ func (m Fields) OrderedKeys() []interface{} {
 	return keys
 }
 
-// Schema allows simple validation of fields. Currently support only maps.
+// Schema allow validating each value in a map against a particular check, just
+// like the Fields type, but with additional configuration options.
 type Schema struct {
-	// Fields map keys to checks.
+	// Fields contain a mapping of keys to checks.
 	Fields Fields
 	// Required, if set, contain a list of required keys. When the list is
 	// explicitly defined as an empty list, no keys will be considered required.
@@ -40,7 +49,7 @@ type Schema struct {
 	AdditionalFields Check
 }
 
-// Check validates vf against s. For now, vf must return a map.
+// Check validates vf against s, expecting vf to return a map.
 func (s Schema) Check(vf ValueFunc) error {
 	if vf == nil {
 		return FailGot("missing value function", vf)

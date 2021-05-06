@@ -54,7 +54,7 @@ func TestSchema_map(t *testing.T) {
 	})
 }
 
-func TestJSONSchema(t *testing.T) {
+func TestSchema_JSON(t *testing.T) {
 	const v = `{"foo": "bar", "bar": 42}`
 
 	vf := subtest.ValueFunc(func() (interface{}, error) {

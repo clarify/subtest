@@ -19,12 +19,12 @@ func ExampleMap_failingTest() {
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
-	// --- FAIL: ParentTest/v_match_cf (0.00s)
 	//     value.go:131: not deep equal
 	//         got: map[string]json.RawMessage
 	//             map[bar:[34 98 97 122 34] foo:[34 98 97 114 34]]
 	//         want: map[string]json.RawMessage
 	//             map[bar:[34 102 111 111 98 97 114 34] foo:[34 98 97 114 34]]
+	// --- FAIL: ParentTest/v_match_cf (0.00s)
 }
 
 func ExampleOnMap_failingTest() {
@@ -42,12 +42,12 @@ func ExampleOnMap_failingTest() {
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
-	// --- FAIL: ParentTest/v_match_cf (0.00s)
 	//     value.go:131: on JSON decoded map: not deep equal
 	//         got: map[string]json.RawMessage
 	//             map[bar:[34 98 97 122 34] foo:[34 98 97 114 34]]
 	//         want: map[string]json.RawMessage
 	//             map[bar:[34 102 111 111 98 97 114 34] foo:[34 98 97 114 34]]
+	// --- FAIL: ParentTest/v_match_cf (0.00s)
 }
 
 func ExampleMap_failingSchemaTest() {
@@ -65,7 +65,6 @@ func ExampleMap_failingSchemaTest() {
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
-	// --- FAIL: ParentTest/v_match_cf (0.00s)
 	//     value.go:131: not matching schema: 1 issue(s)
 	//         issue #0:
 	//             key "bar": not deep equal
@@ -73,6 +72,7 @@ func ExampleMap_failingSchemaTest() {
 	//                 `"baz"`
 	//             want: json.RawMessage
 	//                 `"foobar"`
+	// --- FAIL: ParentTest/v_match_cf (0.00s)
 }
 func ExampleOnMap_failingSchemaTest() {
 	const v = `{"foo":"bar", "bar":"baz"}`
@@ -89,7 +89,6 @@ func ExampleOnMap_failingSchemaTest() {
 
 	// Output:
 	// === RUN   ParentTest/v_match_cf
-	// --- FAIL: ParentTest/v_match_cf (0.00s)
 	//     value.go:131: on JSON decoded map: not matching schema: 1 issue(s)
 	//         issue #0:
 	//             key "bar": not deep equal
@@ -97,6 +96,7 @@ func ExampleOnMap_failingSchemaTest() {
 	//                 `"baz"`
 	//             want: json.RawMessage
 	//                 `"foobar"`
+	// --- FAIL: ParentTest/v_match_cf (0.00s)
 }
 
 func ExampleMap_passingTest() {
