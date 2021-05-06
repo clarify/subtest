@@ -143,14 +143,14 @@ func (errs Errors) Error() string {
 	var buf bytes.Buffer
 	var s string
 
-	fmt.Fprintf(&buf, "%d issue(s)\n", len(errs))
+	fmt.Fprintf(&buf, "%d issue(s)", len(errs))
 	for i, err := range errs {
 		if err == nil {
-			s = " (nil)"
+			s = "\n (nil)"
 		} else {
 			s = "\n" + indentString(err.Error())
 		}
-		fmt.Fprintf(&buf, "issue #%d:%s\n", i, s)
+		fmt.Fprintf(&buf, "\nissue #%d:%s", i, s)
 	}
 
 	return buf.String()
