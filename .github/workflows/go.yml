@@ -1,20 +1,20 @@
 name: Go
 on:
+  pull_request:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
+      - main
+
 jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.17
         id: go
 
       - name: Checkout
@@ -25,9 +25,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          key: ${{ runner.os }}-gomod-${{ hashFiles('go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-gomod-
 
       - name: Setup Go build cache
         id: cache-go-build
@@ -56,7 +56,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.39
+          version: v1.41
           skip-go-installation: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           only-new-issues: false
