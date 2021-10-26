@@ -642,7 +642,7 @@ func TestContainsMatch(t *testing.T) {
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})
 		t.Run("when checking against a and 42", func(t *testing.T) {
-			cf := subtest.AllOff{
+			cf := subtest.AllOf{
 				subtest.ContainsMatch(subtest.DeepEqual("a")),
 				subtest.ContainsMatch(subtest.DeepEqual(42)),
 			}
@@ -672,7 +672,7 @@ func TestContainsMatch(t *testing.T) {
 			)
 		})
 		t.Run("when checking against true and >= 42", func(t *testing.T) {
-			cf := subtest.AllOff{
+			cf := subtest.AllOf{
 				subtest.ContainsMatch(subtest.DeepEqual(true)),
 				subtest.ContainsMatch(subtest.GreaterThanOrEqual(42)),
 			}
@@ -730,7 +730,7 @@ func TestContains(t *testing.T) {
 			t.Run("then it should fail", vf.ErrorIs(expect))
 		})
 		t.Run("when checking against a and 42", func(t *testing.T) {
-			cf := subtest.AllOff{
+			cf := subtest.AllOf{
 				subtest.Contains("a"),
 				subtest.Contains(42),
 			}
@@ -755,7 +755,7 @@ func TestContains(t *testing.T) {
 			)
 		})
 		t.Run("when checking against true, 42 and 43", func(t *testing.T) {
-			cf := subtest.AllOff{
+			cf := subtest.AllOf{
 				subtest.Contains(true),
 				subtest.Contains(42),
 				subtest.Contains(43),

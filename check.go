@@ -39,12 +39,12 @@ func Any() CheckFunc {
 	return func(got interface{}) error { return nil }
 }
 
-// AllOff is a Check type that fails if any of it's members fails.
-type AllOff []Check
+// AllOf is a Check type that fails if any of it's members fails.
+type AllOf []Check
 
 // Check runs all member checks and returns an aggregated error of at least one
 // check fails.
-func (cs AllOff) Check(vf ValueFunc) error {
+func (cs AllOf) Check(vf ValueFunc) error {
 	var errs Errors
 
 	for _, c := range cs {
