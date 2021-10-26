@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 func TestSchema_map(t *testing.T) {

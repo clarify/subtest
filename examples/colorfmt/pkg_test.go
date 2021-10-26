@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/clarify/subtest"
 	"github.com/k0kubun/pp"
-	"github.com/searis/subtest"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

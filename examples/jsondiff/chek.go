@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/clarify/subtest"
 	"github.com/nsf/jsondiff"
-	"github.com/searis/subtest"
 )
 
 // EqualJSON returns a check functions that fails if the the test value is not

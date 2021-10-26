@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 func TestDeepEqual(t *testing.T) {

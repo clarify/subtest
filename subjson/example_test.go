@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/searis/subtest"
-	"github.com/searis/subtest/internal/testmock"
-	"github.com/searis/subtest/subjson"
+	"github.com/clarify/subtest"
+	"github.com/clarify/subtest/internal/testmock"
+	"github.com/clarify/subtest/subjson"
 )
 
 // t is used in example tests to mimic the `t *testing.T` parameter in test

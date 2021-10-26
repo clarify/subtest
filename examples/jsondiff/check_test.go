@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/searis/subtest"
-	pkg "github.com/searis/subtest/examples/jsondiff"
+	"github.com/clarify/subtest"
+	pkg "github.com/clarify/subtest/examples/jsondiff"
 )
 
 func TestEqualJSON(t *testing.T) {

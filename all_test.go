@@ -1,6 +1,6 @@
 package subtest_test
 
-import "github.com/searis/subtest"
+import "github.com/clarify/subtest"
 
 // Set up formatting rules for package unit tests.
 func init() {

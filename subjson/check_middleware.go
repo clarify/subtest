@@ -3,7 +3,7 @@ package subjson
 import (
 	"fmt"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 // OnString returns a check function where the test value is decoded into a

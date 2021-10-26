@@ -3,8 +3,8 @@ package subjson_test
 import (
 	"encoding/json"
 
-	"github.com/searis/subtest"
-	"github.com/searis/subtest/subjson"
+	"github.com/clarify/subtest"
+	"github.com/clarify/subtest/subjson"
 )
 
 func ExampleMap_failingTest() {
