@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 // String returns a ValueFunc that decodes v into an string value.

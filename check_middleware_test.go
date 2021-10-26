@@ -3,7 +3,7 @@ package subtest_test
 import (
 	"testing"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 func TestOnFloat64(t *testing.T) {

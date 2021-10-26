@@ -3,8 +3,8 @@ package gwt_test
 import (
 	"testing"
 
-	"github.com/searis/subtest"
-	pkg "github.com/searis/subtest/examples/gwt"
+	"github.com/clarify/subtest"
+	pkg "github.com/clarify/subtest/examples/gwt"
 )
 
 func TestFoo(t *testing.T) {

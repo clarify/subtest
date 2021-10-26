@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 func TestFloat64(t *testing.T) {

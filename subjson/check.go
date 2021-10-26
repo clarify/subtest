@@ -1,7 +1,7 @@
 package subjson
 
 import (
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 )
 
 // LessThan is a short-hand for OnNumber(subtest.LessThan(expect)).

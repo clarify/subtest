@@ -1,7 +1,7 @@
 # subtest
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/searis/subtest)](https://goreportcard.com/report/github.com/searis/subtest)
-[![GoDev](https://img.shields.io/static/v1?label=go.dev&message=reference&color=blue)](https://pkg.go.dev/github.com/searis/subtest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/clarify/subtest)](https://goreportcard.com/report/github.com/clarify/subtest)
+[![GoDev](https://img.shields.io/static/v1?label=go.dev&message=reference&color=blue)](https://pkg.go.dev/github.com/clarify/subtest)
 
 **subtest** is a minimalist Go test-utility package used to initializing small test functions for use with the Go sub-tests feature. You can read more about Go sub-tests [here][go-sub-test].
 
@@ -195,10 +195,10 @@ The subtest library itself is currently zero-dependencies. The important aspect 
 
 For specialized use cases and customization, see the `examples/` sub-directory:
 
-- `examples/gwt`: Example of tests following the [Given-When-Then][gwt] naming convention.
-- `examples/colorfmt`: Example of custom type formatting with colors via the [pp][pp] package.
-- `examples/gojsonq`: Example of custom checks for JSON matching via the [gojsonq][gojsonq] package.
-- `examples/jsondiff`: Example of custom checks for JSON comparison via the [jsondiff][jsondiff] package.
+-   `examples/gwt`: Example of tests following the [Given-When-Then][gwt] naming convention.
+-   `examples/colorfmt`: Example of custom type formatting with colors via the [pp][pp] package.
+-   `examples/gojsonq`: Example of custom checks for JSON matching via the [gojsonq][gojsonq] package.
+-   `examples/jsondiff`: Example of custom checks for JSON comparison via the [jsondiff][jsondiff] package.
 
 [pp]: https://github.com/k0kubun/pp
 [gojsonq]: https://github.com/thedevsaddam/gojsonq
@@ -238,7 +238,7 @@ Example output from an `exaples/gwt`:
                     want: string
                         ""
 FAIL
-FAIL	github.com/searis/subtest/examples/gwt	0.057s
+FAIL	github.com/clarify/subtest/examples/gwt	0.057s
 FAIL
 ```
 
@@ -253,7 +253,7 @@ Example using `go-spew`:
 ```go
 import (
     "github.com/davecgh/go-spew/spew"
-    "github.com/searis/subtest"
+    "github.com/clarify/subtest"
 )
 
 func init() {
@@ -266,7 +266,7 @@ Example using `litter`:
 ```go
 import (
     "github.com/sanity-io/litter"
-    "github.com/searis/subtest"
+    "github.com/clarify/subtest"
 )
 
 func init() {
@@ -280,7 +280,7 @@ Example using `pp` with conditional coloring:
 import (
     "golang.org/x/crypto/ssh/terminal"
     "github.com/k0kubun/pp"
-    "github.com/searis/subtest"
+    "github.com/clarify/subtest"
 )
 
 func init() {
@@ -304,7 +304,7 @@ func init() {
 }
 ```
 
- When it comes to prettifying the output of the test runner itself, there are separate tools for that. One such tool is [gotestsum][gotestsum], which wraps the Go test runner to provide alternate formatting.
+When it comes to prettifying the output of the test runner itself, there are separate tools for that. One such tool is [gotestsum][gotestsum], which wraps the Go test runner to provide alternate formatting.
 
 [gotestsum]: https://github.com/gotestyourself/gotestsum
 [litter]: https://github.com/sanity-io/litter

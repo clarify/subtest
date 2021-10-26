@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/searis/subtest"
+	"github.com/clarify/subtest"
 	"gopkg.in/thedevsaddam/gojsonq.v2"
 )
 
