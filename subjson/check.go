@@ -1,8 +1,32 @@
 package subjson
 
 import (
+	"encoding/json"
+
 	"github.com/clarify/subtest"
 )
+
+// Fields is a short-hand for OnMap(subtest.Fields{...})
+type Fields subtest.Fields
+
+// Check validates the json decoded vf against m, expecting vf to return a json
+// map.
+func (m Fields) Check(vf subtest.ValueFunc) error {
+	return OnMap(subtest.Fields(m)).Check(vf)
+}
+
+// RawEqual is a short-hand for subtest.DeepEqual(json.RawMessage(s))
+type RawEqual []byte
+
+// Check validates the raw json equals m.
+func (m RawEqual) Check(vf subtest.ValueFunc) error {
+	return subtest.DeepEqual(json.RawMessage(m)).Check(vf)
+}
+
+// IterateSlice is a short-hand for OnSlice(subtest.Iterate(cs...))
+func IterateSlice(cs ...subtest.Check) subtest.Check {
+	return OnSlice(subtest.Iterate(cs...))
+}
 
 // LessThan is a short-hand for OnNumber(subtest.LessThan(expect)).
 func LessThan(expect float64) subtest.CheckFunc {
