@@ -33,6 +33,9 @@ const (
 	msgNotDeepEqual = "deep equal"
 	msgDeepEqual    = "not deep equal"
 
+	msgNotCompareEqual = "compare equal"
+	msgCompareEqual    = "not compare equal"
+
 	msgNotReflectNil = "typed or untyped nil"
 	msgReflectNil    = "neither typed nor untyped nil"
 
@@ -164,5 +167,7 @@ func (errs Errors) Is(target error) bool {
 			return true
 		}
 	}
-	return reflect.DeepEqual(errs, target)
+
+	// Cast errs to interface{} to silence the gopls linter.
+	return reflect.DeepEqual(interface{}(errs), target)
 }
