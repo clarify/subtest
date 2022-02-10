@@ -261,6 +261,28 @@ func DeepEqual(expect interface{}) CheckFunc {
 	}
 }
 
+// NotCompareEqual returns a check function that fails when the test value
+// compare equals to reject.
+func NotCompareEqual(reject interface{}) CheckFunc {
+	return func(got interface{}) error {
+		if reject == got {
+			return FailReject(msgNotCompareEqual, got, reject)
+		}
+		return nil
+	}
+}
+
+// CompareEqual returns a check function that fails when the test value does not
+// compare equals to expect.
+func CompareEqual(expect interface{}) CheckFunc {
+	return func(got interface{}) error {
+		if expect != got {
+			return FailExpect(msgCompareEqual, got, expect)
+		}
+		return nil
+	}
+}
+
 // NotReflectNil returns a check function that fails when the test value is
 // either an untyped nil value or reflects to a pointer with a nil value.
 func NotReflectNil() CheckFunc {

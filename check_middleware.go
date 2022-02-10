@@ -1,6 +1,8 @@
 package subtest
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // OnFloat64 returns a check function where the test value is converted to
 // float64 before it's passed to c.
@@ -51,4 +53,14 @@ func OnIndex(i int, c Check) CheckFunc {
 		}
 		return nil
 	}
+}
+
+// Iterate runs the first check on index 0, the second on index 1 etc, and
+// returns an aggregated error.
+func Iterate(cs ...Check) Check {
+	all := make(AllOf, 0, len(cs))
+	for i, c := range cs {
+		all = append(all, OnIndex(i, c))
+	}
+	return all
 }
