@@ -173,6 +173,16 @@ func (vf ValueFunc) Before(v time.Time) func(t *testing.T) {
 	return vf.Test(Before(v))
 }
 
+// NotCompareEqual is equivalent to vf.Test(NotCompareEqual(v)).
+func (vf ValueFunc) NotCompareEqual(v interface{}) func(t *testing.T) {
+	return vf.Test(NotCompareEqual(v))
+}
+
+// CompareEqual is equivalent to vf.Test(CompareEqual(v)).
+func (vf ValueFunc) CompareEqual(v interface{}) func(t *testing.T) {
+	return vf.Test(CompareEqual(v))
+}
+
 // NotTimeEqual is equivalent to vf.Test(NotTimeEqual(v)).
 func (vf ValueFunc) NotTimeEqual(v time.Time) func(t *testing.T) {
 	return vf.Test(NotTimeEqual(v))
