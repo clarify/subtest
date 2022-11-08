@@ -54,7 +54,7 @@ const (
 
 // Failure is an error type that aid with consistent formatting of test
 // failures. In error matching, two Failure instances are considered equal when
-// their formattet content is the same.
+// their formatted content is the same.
 type Failure struct {
 	Prefix string
 	Got    string
